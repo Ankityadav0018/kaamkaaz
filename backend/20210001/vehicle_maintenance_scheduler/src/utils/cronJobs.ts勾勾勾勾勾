@@ -1,0 +1,29 @@
+import cron from 'node-cron';
+import { VehicleService } from '../services/VehicleService';
+import { Log } from '../../../logging_middleware/src';
+
+export const initCronJobs = () => {
+  const vehicleService = new VehicleService();
+
+  // Run daily at midnight
+  cron.schedule('0 0 * * *', async () => {
+    try {
+      await Log('backend', 'info', 'cron_job', 'Running daily maintenance check');
+      const upcoming = await vehicleService.checkUpcomingMaintenance();
+
+      for (const vehicle of upcoming) {
+        // Simulate reminder processing
+        await Log(
+          'backend',
+          'info',
+          'cron_job',
+          `Reminder: Vehicle ${vehicle.vehicleNumber} maintenance due on ${vehicle.nextMaintenanceDate}`
+        );
+      }
+    } catch (error: any) {
+      await Log('backend', 'error', 'cron_job', `Cron job failed: ${error.message}`);
+    }
+  });
+
+  Log('backend', 'info', 'cron_job', 'Cron jobs initialized');
+};

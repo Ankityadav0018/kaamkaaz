@@ -1,0 +1,24 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+import app from './app';
+import { connectDB } from './config/db';
+import { initCronJobs } from './utils/cronJobs';
+import { Log } from '../../logging_middleware/src';
+
+const PORT = process.env.PORT || 5000;
+
+const startServer = async () => {
+  await connectDB();
+  initCronJobs();
+
+  app.listen(PORT, async () => {
+    await Log('backend', 'info', 'service', `Server started on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
+startServer().catch(async (err) => {
+  await Log('backend', 'fatal', 'service', `Failed to start server: ${err.message}`);
+  console.error(err);
+});

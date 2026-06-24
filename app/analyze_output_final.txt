@@ -1,0 +1,113 @@
+Analyzing app...                                                
+
+   info • Empty catch block • lib/providers/auth_provider.dart:69:19 • empty_catches
+   info • Empty catch block • lib/providers/auth_provider.dart:82:17 • empty_catches
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/admin/admin_home_screen.dart:89:30 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/admin/admin_home_screen.dart:98:30 • use_build_context_synchronously
+   info • Use interpolation to compose strings and values • lib/screens/admin/driver_kyc_queue_screen.dart:111:25 • prefer_interpolation_to_compose_strings
+  error • The method 'DateFormat' isn't defined for the type '_RecruiterKYCDetailScreenState' • lib/screens/admin/recruiter_kyc_detail_screen.dart:224:31 • undefined_method
+   info • Statements in an if should be enclosed in a block • lib/screens/admin/recruiter_verification_screen.dart:156:55 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/screens/admin/recruiter_verification_screen.dart:157:61 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/screens/admin/recruiter_verification_screen.dart:158:26 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/screens/admin/recruiter_verification_screen.dart:160:39 • curly_braces_in_flow_control_structures
+   info • Unnecessary braces in a string interpolation • lib/screens/admin/recruiter_verification_screen.dart:163:32 • unnecessary_brace_in_string_interps
+  error • The method 'DateFormat' isn't defined for the type '_WorkerKYCDetailScreenState' • lib/screens/admin/worker_kyc_detail_screen.dart:190:81 • undefined_method
+   info • Don't use 'BuildContext's across async gaps • lib/screens/auth/forgot_password_screen.dart:78:28 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/screens/auth/mobile_input_screen.dart:58:32 • use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/auth/mobile_input_screen.dart:115:65 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/auth/mobile_input_screen.dart:130:48 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/auth/otp_screen.dart:199:65 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/auth/otp_screen.dart:201:48 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/auth/otp_screen.dart:253:52 • deprecated_member_use
+warning • Unused import: '../../services/api_service.dart' • lib/screens/auth/register_screen.dart:8:8 • unused_import
+   info • Unnecessary use of 'toList' in a spread • lib/screens/legal/help_screen.dart:96:67 • unnecessary_to_list_in_spreads
+   info • Don't use 'BuildContext's across async gaps • lib/screens/recruiter/edit_profile_screen.dart:201:28 • use_build_context_synchronously
+   info • Use 'const' with the constructor to improve performance • lib/screens/recruiter/manage_applicants_screen.dart:534:27 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/recruiter/manage_applicants_screen.dart:534:49 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/recruiter/manage_applicants_screen.dart:534:61 • prefer_const_constructors
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/recruiter/past_workers_screen.dart:84:39 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/recruiter/past_workers_screen.dart:87:48 • use_build_context_synchronously
+   info • Empty catch block • lib/screens/recruiter/past_workers_screen.dart:229:39 • empty_catches
+warning • The value of the local variable 'orderRes' isn't used • lib/screens/recruiter/post_job_screen.dart:200:13 • unused_local_variable
+   info • 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre • lib/screens/recruiter/post_job_screen.dart:283:25 • deprecated_member_use
+   info • 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre • lib/screens/recruiter/post_job_screen.dart:389:27 • deprecated_member_use
+   info • 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre • lib/screens/recruiter/post_job_screen.dart:430:27 • deprecated_member_use
+   info • 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre • lib/screens/recruiter/post_job_screen.dart:700:97 • deprecated_member_use
+   info • Statements in an if should be enclosed in a block • lib/screens/recruiter/post_job_screen.dart:729:33 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/screens/recruiter/post_job_screen.dart:730:44 • curly_braces_in_flow_control_structures
+   info • 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor or activeTrackColor instead. This feature was deprecated after v3.31.0-2.0.pre • lib/screens/recruiter/post_job_screen.dart:760:61 • deprecated_member_use
+   info • 'onPopInvoked' is deprecated and shouldn't be used. Use onPopInvokedWithResult instead. This feature was deprecated after v3.22.0-12.0.pre • lib/screens/recruiter/recruiter_home_screen.dart:46:7 • deprecated_member_use
+warning • The value of 'refresh' should be used • lib/screens/recruiter/recruiter_home_screen.dart:327:13 • unused_result
+   info • Unnecessary use of string interpolation • lib/screens/recruiter/recruiter_home_screen.dart:407:45 • unnecessary_string_interpolations
+   info • 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre • lib/screens/recruiter/recruiter_onboarding_screen.dart:179:15 • deprecated_member_use
+   info • The import of 'package:intl/intl.dart' is unnecessary because all of the used elements are also provided by the import of 'package:easy_localization/easy_localization.dart' • lib/screens/shared/my_disputes_screen.dart:7:8 • unnecessary_import
+   info • Use 'const' with the constructor to improve performance • lib/screens/shared/my_disputes_screen.dart:160:45 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/shared/my_disputes_screen.dart:160:58 • prefer_const_constructors
+   info • Unnecessary use of 'toList' in a spread • lib/screens/shared/raise_dispute_screen.dart:128:16 • unnecessary_to_list_in_spreads
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/shared/referral_screen.dart:202:33 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/shared/referral_screen.dart:203:40 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check • lib/screens/shared/referral_screen.dart:206:51 • use_build_context_synchronously
+   info • Unnecessary use of 'toList' in a spread • lib/screens/shared/referral_screen.dart:270:14 • unnecessary_to_list_in_spreads
+   info • Empty catch block • lib/screens/splash_screen.dart:32:17 • empty_catches
+   info • Don't use 'BuildContext's across async gaps • lib/screens/splash_screen.dart:46:7 • use_build_context_synchronously
+   info • Use 'const' with the constructor to improve performance • lib/screens/splash_screen.dart:100:13 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/splash_screen.dart:104:22 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/splash_screen.dart:105:24 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/screens/splash_screen.dart:107:29 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/screens/splash_screen.dart:113:21 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/worker/driver_kyc_status_screen.dart:46:16 • prefer_const_constructors
+   info • Statements in an if should be enclosed in a block • lib/screens/worker/driver_profile_screen.dart:439:35 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/screens/worker/driver_profile_screen.dart:440:26 • curly_braces_in_flow_control_structures
+   info • Use 'const' with the constructor to improve performance • lib/screens/worker/driver_profile_screen.dart:558:20 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/screens/worker/driver_profile_screen.dart:559:25 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/screens/worker/driver_profile_screen.dart:562:17 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/worker/driver_profile_screen.dart:563:26 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/worker/driver_profile_screen.dart:565:28 • prefer_const_constructors
+   info • 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor or activeTrackColor instead. This feature was deprecated after v3.31.0-2.0.pre • lib/screens/worker/driver_profile_screen.dart:743:13 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps • lib/screens/worker/edit_profile_screen.dart:237:28 • use_build_context_synchronously
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/screens/worker/my_jobs_screen.dart:61:25 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/screens/worker/my_jobs_screen.dart:103:32 • prefer_const_constructors
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/worker/my_jobs_screen.dart:201:64 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/worker/my_jobs_screen.dart:235:70 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/worker/my_jobs_screen.dart:287:86 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/worker/my_jobs_screen.dart:324:86 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/worker/my_jobs_screen.dart:325:56 • deprecated_member_use
+   info • Use 'const' with the constructor to improve performance • lib/screens/worker/worker_applications_screen.dart:240:27 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/worker/worker_applications_screen.dart:241:25 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/worker/worker_applications_screen.dart:241:37 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/worker/worker_applications_screen.dart:262:27 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/worker/worker_applications_screen.dart:263:25 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/screens/worker/worker_applications_screen.dart:263:37 • prefer_const_constructors
+   info • 'onPopInvoked' is deprecated and shouldn't be used. Use onPopInvokedWithResult instead. This feature was deprecated after v3.22.0-12.0.pre • lib/screens/worker/worker_home_screen.dart:86:7 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/worker/worker_home_screen.dart:838:65 • deprecated_member_use
+   info • Statements in an if should be enclosed in a block • lib/services/api_service.dart:135:30 • curly_braces_in_flow_control_structures
+   info • Statements in an if should be enclosed in a block • lib/services/api_service.dart:136:33 • curly_braces_in_flow_control_structures
+   info • Unnecessary braces in a string interpolation • lib/services/cache_service.dart:12:25 • unnecessary_brace_in_string_interps
+   info • Unnecessary braces in a string interpolation • lib/services/cache_service.dart:18:30 • unnecessary_brace_in_string_interps
+   info • Unnecessary braces in a string interpolation • lib/services/cache_service.dart:31:25 • unnecessary_brace_in_string_interps
+   info • Unnecessary braces in a string interpolation • lib/services/cache_service.dart:37:30 • unnecessary_brace_in_string_interps
+   info • Empty catch block • lib/services/notification_service.dart:106:17 • empty_catches
+   info • Empty catch block • lib/services/notification_service.dart:114:17 • empty_catches
+   info • 'Share' is deprecated and shouldn't be used. Use SharePlus instead • lib/services/share_service.dart:19:17 • deprecated_member_use
+   info • 'share' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead • lib/services/share_service.dart:19:23 • deprecated_member_use
+   info • Empty catch block • lib/services/share_service.dart:22:17 • empty_catches
+   info • 'Share' is deprecated and shouldn't be used. Use SharePlus instead • lib/services/share_service.dart:40:17 • deprecated_member_use
+   info • 'share' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead • lib/services/share_service.dart:40:23 • deprecated_member_use
+   info • 'Share' is deprecated and shouldn't be used. Use SharePlus instead • lib/services/share_service.dart:45:13 • deprecated_member_use
+   info • 'share' is deprecated and shouldn't be used. Use SharePlus.instance.share() instead • lib/services/share_service.dart:45:19 • deprecated_member_use
+   info • The prefix 'IO' isn't a lower_case_with_underscores identifier • lib/services/socket_service.dart:1:60 • library_prefixes
+   info • 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre • lib/utils/app_theme.dart:50:9 • deprecated_member_use
+   info • Use 'const' with the constructor to improve performance • lib/widgets/document_upload_tile.dart:78:21 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/widgets/document_upload_tile.dart:79:33 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/widgets/document_upload_tile.dart:80:25 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/widgets/document_upload_tile.dart:83:34 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/widgets/document_upload_tile.dart:99:21 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/widgets/document_upload_tile.dart:100:33 • prefer_const_literals_to_create_immutables
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/job_card.dart:26:35 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/job_card.dart:31:49 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets/shimmer_loader.dart:39:47 • deprecated_member_use
+   info • Use 'const' with the constructor to improve performance • lib/widgets/shimmer_loader.dart:41:14 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/widgets/shimmer_loader.dart:43:19 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/widgets/shimmer_loader.dart:69:42 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/widgets/shimmer_loader.dart:71:20 • prefer_const_constructors
+

@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "firebase": "^12.13.0",
+    "i18next": "^26.1.0",
+    "i18next-fs-backend": "^2.6.5",
+    "i18next-http-middleware": "^3.9.6"
+  }
+}

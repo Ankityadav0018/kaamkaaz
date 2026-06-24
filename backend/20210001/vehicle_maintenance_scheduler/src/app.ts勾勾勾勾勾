@@ -1,0 +1,30 @@
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import vehicleRoutes from './routes/vehicleRoutes';
+import maintenanceRoutes from './routes/maintenanceRoutes';
+import { requestLogger } from './middlewares/requestLogger';
+import { errorHandler } from './middlewares/errorHandler';
+
+const app = express();
+
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+
+// Request logging middleware
+app.use(requestLogger);
+
+// Routes
+app.use('/vehicles', vehicleRoutes);
+app.use('/maintenance', maintenanceRoutes);
+
+// Base route
+app.get('/', (req, res) => {
+  res.json({ success: true, message: 'Vehicle Maintenance Scheduler API' });
+});
+
+// Error handling
+app.use(errorHandler);
+
+export default app;

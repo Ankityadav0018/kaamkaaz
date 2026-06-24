@@ -1,0 +1,12 @@
+# Environment secrets — NEVER commit
+.env
+
+# Node modules — too large, not needed
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# macOS junk
+.DS_Store

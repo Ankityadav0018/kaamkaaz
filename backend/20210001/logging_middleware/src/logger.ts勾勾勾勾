@@ -1,0 +1,37 @@
+import { Stack, LogLevel, PackageName, LogPayload } from './types';
+import { validateLogParams } from './utils/validator';
+import { LogService } from './services/logService';
+
+/**
+ * Production-grade logging function
+ * @param stack - 'backend' | 'frontend'
+ * @param level - 'debug' | 'info' | 'warn' | 'error' | 'fatal'
+ * @param packageName - The module/package name
+ * @param message - The log message
+ */
+export const Log = async (
+  stack: Stack,
+  level: LogLevel,
+  packageName: PackageName,
+  message: string
+): Promise<void> => {
+  const validation = validateLogParams(stack, level, packageName);
+
+  if (!validation.isValid) {
+    console.warn(`[Logger Validation Error] ${validation.error}`);
+    return;
+  }
+
+  const payload: LogPayload = {
+    stack,
+    level,
+    packageName,
+    message,
+    timestamp: new Date().toISOString(),
+  };
+
+  // Asynchronously send log to service
+  LogService.sendLog(payload).catch((err) => {
+    console.error('Critical error in Log function:', err);
+  });
+};

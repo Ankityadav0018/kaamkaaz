@@ -1,0 +1,31 @@
+import { VehicleModel, IVehicle } from '../models/Vehicle';
+
+export class VehicleRepository {
+  async create(vehicleData: Partial<IVehicle>): Promise<IVehicle> {
+    const vehicle = new VehicleModel(vehicleData);
+    return await vehicle.save();
+  }
+
+  async findAll(): Promise<IVehicle[]> {
+    return await VehicleModel.find();
+  }
+
+  async findById(id: string): Promise<IVehicle | null> {
+    return await VehicleModel.findById(id);
+  }
+
+  async update(id: string, updateData: Partial<IVehicle>): Promise<IVehicle | null> {
+    return await VehicleModel.findByIdAndUpdate(id, updateData, { new: true });
+  }
+
+  async delete(id: string): Promise<IVehicle | null> {
+    return await VehicleModel.findByIdAndDelete(id);
+  }
+
+  async findUpcomingMaintenance(date: Date): Promise<IVehicle[]> {
+    return await VehicleModel.find({
+      nextMaintenanceDate: { $lte: date },
+      status: { $ne: 'maintenance' },
+    });
+  }
+}

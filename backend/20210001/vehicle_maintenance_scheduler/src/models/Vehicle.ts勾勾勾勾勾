@@ -1,0 +1,30 @@
+import { Schema, model, Document } from 'mongoose';
+
+export interface IVehicle extends Document {
+  ownerName: string;
+  vehicleNumber: string;
+  model: string;
+  serviceDate: Date;
+  nextMaintenanceDate: Date;
+  status: 'active' | 'maintenance' | 'overdue';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const VehicleSchema = new Schema<IVehicle>(
+  {
+    ownerName: { type: String, required: true },
+    vehicleNumber: { type: String, required: true, unique: true },
+    model: { type: String, required: true },
+    serviceDate: { type: Date, required: true },
+    nextMaintenanceDate: { type: Date, required: true },
+    status: {
+      type: String,
+      enum: ['active', 'maintenance', 'overdue'],
+      default: 'active',
+    },
+  },
+  { timestamps: true }
+);
+
+export const VehicleModel = model<IVehicle>('Vehicle', VehicleSchema);

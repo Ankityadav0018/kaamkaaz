@@ -1,0 +1,21 @@
+import axios from 'axios';
+import { config } from '../config/env';
+import { tokenManager } from '../auth/tokenManager';
+import { LogPayload } from '../types';
+
+export class LogService {
+  public static async sendLog(payload: LogPayload): Promise<void> {
+    try {
+      const token = await tokenManager.getToken();
+      await axios.post(`${config.LOG_SERVER_URL}/logs`, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error: any) {
+      // Graceful failure: log to console if API fails, but don't crash the app
+      console.error('Failed to send log to server:', error.message);
+      console.info('Fallback Log:', JSON.stringify(payload));
+    }
+  }
+}

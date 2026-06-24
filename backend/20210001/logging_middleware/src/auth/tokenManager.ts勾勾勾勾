@@ -1,0 +1,46 @@
+import axios from 'axios';
+import { config } from '../config/env';
+import { AuthResponse } from '../types';
+
+class TokenManager {
+  private static instance: TokenManager;
+  private token: string | null = null;
+  private expiry: number | null = null;
+
+  private constructor() {}
+
+  public static getInstance(): TokenManager {
+    if (!TokenManager.instance) {
+      TokenManager.instance = new TokenManager();
+    }
+    return TokenManager.instance;
+  }
+
+  public async getToken(): Promise<string> {
+    if (this.token && this.expiry && Date.now() < this.expiry) {
+      return this.token;
+    }
+
+    return this.refreshToken();
+  }
+
+  private async refreshToken(): Promise<string> {
+    try {
+      const response = await axios.post<AuthResponse>(`${config.LOG_SERVER_URL}/auth/login`, {
+        email: config.AUTH_EMAIL,
+        password: config.AUTH_PASSWORD,
+      });
+
+      this.token = response.data.token;
+      // Set expiry to 5 minutes before actual expiry to be safe
+      this.expiry = Date.now() + response.data.expiresIn * 1000 - 300000;
+
+      return this.token;
+    } catch (error) {
+      console.error('Failed to authenticate with log server:', error);
+      throw new Error('Log server authentication failed');
+    }
+  }
+}
+
+export const tokenManager = TokenManager.getInstance();

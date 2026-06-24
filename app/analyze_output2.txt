@@ -1,0 +1,29 @@
+Analyzing app...                                                
+
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/screens/chat/chat_detail_screen.dart:125:22 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/screens/chat/chat_detail_screen.dart:186:30 • use_build_context_synchronously
+warning • The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand • lib/screens/recruiter/post_job_screen.dart:105:60 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand • lib/screens/recruiter/post_job_screen.dart:108:43 • dead_null_aware_expression
+warning • The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand • lib/screens/recruiter/post_job_screen.dart:131:39 • dead_null_aware_expression
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/screens/search_profiles_screen.dart:37:26 • use_build_context_synchronously
+   info • 'localeId' is deprecated and shouldn't be used. Use SpeechListenOptions.localeId instead. Try replacing the use of the deprecated member with the replacement • lib/screens/search_profiles_screen.dart:47:11 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/screens/worker/job_detail_screen.dart:1080:7 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/screens/worker/job_detail_screen.dart:1101:60 • use_build_context_synchronously
+warning • The value of the local variable 'isHindi' isn't used. Try removing the variable or using it • lib/screens/worker/portfolio_manager_screen.dart:349:11 • unused_local_variable
+   info • 'encryptedSharedPreferences' is deprecated and shouldn't be used. EncryptedSharedPreferences is deprecated and will be removed in v11. The Jetpack Security library is deprecated by Google. Your data will be automatically migrated to custom ciphers on first access. Remove this parameter - it will be ignored. Try replacing the use of the deprecated member with the replacement • lib/services/api_service.dart:14:7 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/location_service.dart:12:31 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/location_service.dart:22:33 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/services/location_service.dart:29:31 • use_build_context_synchronously
+warning • The value of the local variable 'languageState' isn't used. Try removing the variable or using it • lib/services/router_service.dart:109:13 • unused_local_variable
+   info • Don't invoke 'print' in production code. Try using a logging framework • lib/services/widget_service.dart:38:7 • avoid_print
+   info • The variable name 'JOB_CATEGORIES' isn't a lowerCamelCase identifier. Try changing the name to follow the lowerCamelCase style • lib/utils/constants.dart:20:27 • non_constant_identifier_names
+   info • Don't use 'BuildContext's across async gaps. Try rewriting the code to not use the 'BuildContext', or guard the use with a 'mounted' check • lib/widgets/job_search_bar.dart:60:26 • use_build_context_synchronously
+   info • 'localeId' is deprecated and shouldn't be used. Use SpeechListenOptions.localeId instead. Try replacing the use of the deprecated member with the replacement • lib/widgets/job_search_bar.dart:70:11 • deprecated_member_use
+  error • The named parameter 'id' is required, but there's no corresponding argument. Try adding the required argument • scratch/check_signature.dart:4:7 • missing_required_argument
+  error • Too many positional arguments: 0 expected, but 1 found. Try removing the extra positional arguments, or specifying the name for named arguments • scratch/check_signature.dart:4:14 • extra_positional_arguments_could_be_named
+warning • The value of the local variable 'res' isn't used. Try removing the variable or using it • scratch/check_supabase_tables.dart:5:11 • unused_local_variable
+   info • Don't invoke 'print' in production code. Try using a logging framework • scratch/check_supabase_tables.dart:6:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • scratch/check_supabase_tables.dart:8:5 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • scratch/check_tables.dart:7:7 • avoid_print
+   info • Don't invoke 'print' in production code. Try using a logging framework • scratch/check_tables.dart:9:7 • avoid_print
+

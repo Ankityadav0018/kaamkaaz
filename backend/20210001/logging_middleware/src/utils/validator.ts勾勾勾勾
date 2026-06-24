@@ -1,0 +1,22 @@
+import { ALLOWED_STACKS, ALLOWED_LEVELS, ALLOWED_PACKAGES } from '../constants';
+import { Stack, LogLevel, PackageName } from '../types';
+
+export const validateLogParams = (
+  stack: any,
+  level: any,
+  packageName: any
+): { isValid: boolean; error?: string } => {
+  if (!ALLOWED_STACKS.includes(stack as Stack)) {
+    return { isValid: false, error: `Invalid stack: ${stack}. Allowed: ${ALLOWED_STACKS.join(', ')}` };
+  }
+  if (!ALLOWED_LEVELS.includes(level as LogLevel)) {
+    return { isValid: false, error: `Invalid level: ${level}. Allowed: ${ALLOWED_LEVELS.join(', ')}` };
+  }
+  if (!ALLOWED_PACKAGES.includes(packageName as PackageName)) {
+    return {
+      isValid: false,
+      error: `Invalid package: ${packageName}. Allowed: ${ALLOWED_PACKAGES.join(', ')}`,
+    };
+  }
+  return { isValid: true };
+};

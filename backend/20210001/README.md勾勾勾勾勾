@@ -1,0 +1,107 @@
+# Production-Grade Backend System
+
+This repository contains a production-grade backend suite consisting of a reusable logging middleware and a vehicle maintenance scheduler system.
+
+## 📁 Repository Structure
+- **logging_middleware/**: Reusable TS package for centralized logging with Bearer Token auth.
+- **vehicle_maintenance_scheduler/**: Clean Architecture backend for managing vehicle service schedules.
+- **notification_system_design.md**: Architectural design for a scalable notification system.
+
+---
+
+## 🛠️ Tech Stack
+- **Runtime**: Node.js
+- **Language**: TypeScript
+- **Framework**: Express.js
+- **Database**: MongoDB Atlas (Mongoose)
+- **Scheduler**: node-cron
+- **Logging**: Custom Axios-based middleware
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v18+)
+- MongoDB Atlas account
+- npm or yarn
+
+### Setup Instructions
+
+1. **Install Dependencies**:
+   ```bash
+   # Install logging middleware dependencies
+   cd logging_middleware && npm install
+   
+   # Install scheduler dependencies
+   cd ../vehicle_maintenance_scheduler && npm install
+   ```
+
+2. **Environment Configuration**:
+   Create a `.env` file in `vehicle_maintenance_scheduler/`:
+   ```env
+   PORT=5000
+   MONGO_URI=your_mongodb_atlas_uri
+   LOG_SERVER_URL=https://your-log-server.com
+   LOG_AUTH_EMAIL=admin@example.com
+   LOG_AUTH_PASSWORD=your_password
+   ```
+
+3. **Running the Applications**:
+   ```bash
+   # Development mode
+   npm run dev
+   
+   # Build for production
+   npm run build
+   npm start
+   ```
+
+---
+
+## 📡 API Documentation
+
+### Vehicles API
+- `POST /vehicles`: Register a new vehicle.
+- `GET /vehicles`: Retrieve all vehicles.
+- `GET /vehicles/:id`: Get vehicle details by ID.
+- `PUT /vehicles/:id`: Update vehicle information.
+- `DELETE /vehicles/:id`: Remove a vehicle.
+
+### Maintenance API
+- `GET /maintenance/upcoming`: Retrieve vehicles due for maintenance within 24 hours.
+
+---
+
+## 🏗️ Architecture Explanation
+The project follows **Clean Architecture** principles:
+1. **Entities/Models**: Define the core business objects (Vehicle).
+2. **Repositories**: Handle data persistence logic, decoupling the database from business logic.
+3. **Services**: Contain business logic and coordinate between repositories and external modules (like Logger).
+4. **Controllers**: Manage HTTP requests/responses.
+5. **Middlewares**: Handle cross-cutting concerns like logging and error handling.
+
+---
+
+## 📝 Logging Middleware
+The `Log` function is designed for high reliability:
+- **Authentication**: Automatically handles Bearer token login and refresh.
+- **Validation**: Ensures only allowed stack, level, and package values are logged.
+- **Graceful Failure**: If the log server is unreachable, it falls back to console logging to prevent application crashes.
+
+---
+
+## ⏰ Scheduler Explanation
+The system uses `node-cron` to perform daily checks:
+- Runs every day at 00:00.
+- Queries the database for vehicles whose `nextMaintenanceDate` is approaching.
+- Logs reminders and simulates notification processing.
+
+---
+
+## 🚢 Deployment Guide
+This project is ready for deployment on **Railway** or **Render**:
+1. Connect your GitHub repository.
+2. Set the `Root Directory` to `vehicle_maintenance_scheduler`.
+3. Configure the environment variables in the platform dashboard.
+4. Deployment will trigger automatically on every push to the main branch.

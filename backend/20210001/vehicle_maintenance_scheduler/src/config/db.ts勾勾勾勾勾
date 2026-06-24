@@ -1,0 +1,13 @@
+import mongoose from 'mongoose';
+import { Log } from '../../../logging_middleware/src';
+
+export const connectDB = async () => {
+  try {
+    const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/vehicle-maintenance';
+    await mongoose.connect(mongoURI);
+    await Log('backend', 'info', 'db', 'MongoDB Connected successfully');
+  } catch (error: any) {
+    await Log('backend', 'error', 'db', `MongoDB Connection Error: ${error.message}`);
+    process.exit(1);
+  }
+};

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:padding="8dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nearby Jobs"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:textSize="14sp"
+        android:paddingBottom="4dp" />
+
+    <!-- Job 1 -->
+    <LinearLayout
+        android:id="@+id/job1_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingVertical="4dp">
+        <TextView android:id="@+id/job1_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Loading..." android:textStyle="bold" android:textColor="#000000" android:textSize="12sp" />
+        <TextView android:id="@+id/job1_desc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#666666" android:textSize="10sp" />
+    </LinearLayout>
+    
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+    <!-- Job 2 -->
+    <LinearLayout
+        android:id="@+id/job2_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingVertical="4dp">
+        <TextView android:id="@+id/job2_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textStyle="bold" android:textColor="#000000" android:textSize="12sp" />
+        <TextView android:id="@+id/job2_desc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#666666" android:textSize="10sp" />
+    </LinearLayout>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+    <!-- Job 3 -->
+    <LinearLayout
+        android:id="@+id/job3_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingVertical="4dp">
+        <TextView android:id="@+id/job3_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textStyle="bold" android:textColor="#000000" android:textSize="12sp" />
+        <TextView android:id="@+id/job3_desc" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#666666" android:textSize="10sp" />
+    </LinearLayout>
+
+</LinearLayout>

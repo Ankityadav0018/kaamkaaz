@@ -1,0 +1,31 @@
+export type Stack = 'backend' | 'frontend';
+
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+
+export type BackendPackage =
+  | 'cache'
+  | 'controller'
+  | 'cron_job'
+  | 'db'
+  | 'domain'
+  | 'handler'
+  | 'repository'
+  | 'route'
+  | 'service';
+
+export type CommonPackage = 'auth' | 'config' | 'middleware' | 'utils';
+
+export type PackageName = BackendPackage | CommonPackage;
+
+export interface LogPayload {
+  stack: Stack;
+  level: LogLevel;
+  packageName: PackageName;
+  message: string;
+  timestamp?: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  expiresIn: number;
+}

@@ -1,0 +1,39 @@
+# Notification System Design
+
+## 1. Overview
+A scalable, distributed notification system designed to handle real-time alerts, maintenance reminders, and system notifications across multiple channels (Push, SMS, Email).
+
+## 2. Architecture
+The system follows a microservices architecture using an event-driven approach.
+
+### Components:
+1. **Producer (Vehicle Maintenance Service)**: Triggers events when maintenance is due.
+2. **Message Broker (RabbitMQ/Kafka)**: Handles asynchronous event distribution to ensure decoupling and reliability.
+3. **Notification Service**: 
+   - Consumes events from the broker.
+   - Fetches user preferences and contact details.
+   - Decides the delivery channel.
+4. **Channel Providers**:
+   - **SendGrid/SES**: For Emails.
+   - **Twilio**: For SMS.
+   - **Firebase Cloud Messaging (FCM)**: For Push Notifications.
+
+## 3. Data Flow
+1. **Cron Job** in the Scheduler service identifies overdue/upcoming maintenance.
+2. An event `MAINTENANCE_REMINDER` is published to the broker.
+3. **Notification Service** picks up the event.
+4. **Template Engine** (Handlebars/EJS) generates the message body based on the event data.
+5. **Worker Nodes** send the message via the appropriate provider.
+6. **Status Tracking**: The service logs delivery status (Sent, Delivered, Failed) back to the DB.
+
+## 4. Scalability & Reliability
+- **Retries with Exponential Backoff**: Handle temporary provider failures.
+- **Dead Letter Queues (DLQ)**: Store messages that fail repeatedly for manual inspection.
+- **Rate Limiting**: Ensure we don't exceed provider quotas or overwhelm users.
+- **Priority Queues**: Urgent alerts (e.g., system failure) take precedence over routine reminders.
+
+## 5. Technology Stack
+- **Backend**: Node.js + TypeScript
+- **Database**: MongoDB (User preferences) + Redis (Idempotency keys)
+- **Broker**: RabbitMQ
+- **Infrastructure**: Docker & Kubernetes

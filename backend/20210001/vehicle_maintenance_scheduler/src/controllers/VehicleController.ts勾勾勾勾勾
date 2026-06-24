@@ -1,0 +1,97 @@
+import { Request, Response, NextFunction } from 'express';
+import { VehicleService } from '../services/VehicleService';
+
+export class VehicleController {
+  private service: VehicleService;
+
+  constructor() {
+    this.service = new VehicleService();
+  }
+
+  create = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const vehicle = await this.service.createVehicle(req.body);
+      res.status(201).json({
+        success: true,
+        message: 'Vehicle created successfully',
+        data: vehicle,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getAll = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const vehicles = await this.service.getAllVehicles();
+      res.status(200).json({
+        success: true,
+        message: 'Vehicles retrieved successfully',
+        data: vehicles,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const vehicle = await this.service.getVehicleById(req.params.id);
+      if (!vehicle) {
+        return res.status(404).json({ success: false, message: 'Vehicle not found' });
+      }
+      res.status(200).json({
+        success: true,
+        message: 'Vehicle retrieved successfully',
+        data: vehicle,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  update = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const vehicle = await this.service.updateVehicle(req.params.id, req.body);
+      if (!vehicle) {
+        return res.status(404).json({ success: false, message: 'Vehicle not found' });
+      }
+      res.status(200).json({
+        success: true,
+        message: 'Vehicle updated successfully',
+        data: vehicle,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  delete = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const vehicle = await this.service.deleteVehicle(req.params.id);
+      if (!vehicle) {
+        return res.status(404).json({ success: false, message: 'Vehicle not found' });
+      }
+      res.status(200).json({
+        success: true,
+        message: 'Vehicle deleted successfully',
+        data: {},
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getUpcoming = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const vehicles = await this.service.checkUpcomingMaintenance();
+      res.status(200).json({
+        success: true,
+        message: 'Upcoming maintenance retrieved successfully',
+        data: vehicles,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+}

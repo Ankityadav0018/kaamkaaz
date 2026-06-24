@@ -1,0 +1,40 @@
+import { VehicleRepository } from '../repositories/VehicleRepository';
+import { IVehicle } from '../models/Vehicle';
+import { Log } from '../../../logging_middleware/src';
+
+export class VehicleService {
+  private repository: VehicleRepository;
+
+  constructor() {
+    this.repository = new VehicleRepository();
+  }
+
+  async createVehicle(data: Partial<IVehicle>): Promise<IVehicle> {
+    await Log('backend', 'info', 'service', `Creating vehicle: ${data.vehicleNumber}`);
+    return await this.repository.create(data);
+  }
+
+  async getAllVehicles(): Promise<IVehicle[]> {
+    return await this.repository.findAll();
+  }
+
+  async getVehicleById(id: string): Promise<IVehicle | null> {
+    return await this.repository.findById(id);
+  }
+
+  async updateVehicle(id: string, data: Partial<IVehicle>): Promise<IVehicle | null> {
+    await Log('backend', 'info', 'service', `Updating vehicle: ${id}`);
+    return await this.repository.update(id, data);
+  }
+
+  async deleteVehicle(id: string): Promise<IVehicle | null> {
+    await Log('backend', 'warn', 'service', `Deleting vehicle: ${id}`);
+    return await this.repository.delete(id);
+  }
+
+  async checkUpcomingMaintenance(): Promise<IVehicle[]> {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return await this.repository.findUpcomingMaintenance(tomorrow);
+  }
+}

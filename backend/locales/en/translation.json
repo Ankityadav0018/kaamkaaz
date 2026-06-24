@@ -1,0 +1,66 @@
+{
+  "auth": {
+    "login_success": "Login successful",
+    "logout_success": "Logout successful",
+    "unauthorized": "Unauthorized access",
+    "user_not_found": "User not found",
+    "invalid_token": "Invalid token",
+    "token_expired": "Token has expired",
+    "token_invalid": "Invalid token",
+    "invalid_credentials": "Invalid phone number or password",
+    "account_blocked": "Account blocked. Please contact admin.",
+    "phone_registered": "Phone number already registered",
+    "aadhaar_registered": "Aadhaar number already registered",
+    "registration_success": "Registered successfully",
+    "admin_cannot_be_blocked": "Admin accounts cannot be blocked or deleted",
+    "incorrect_old_password": "Incorrect old password"
+  },
+  "validation": {
+    "required_field": "This field is required",
+    "invalid_email": "Invalid email address",
+    "password_short": "Password must be at least 6 characters",
+    "invalid_phone": "Invalid 10-digit phone number",
+    "min_length": "Must be at least {{count}} characters",
+    "invalid_status": "Invalid status provided"
+  },
+  "upload": {
+    "upload_success": "File uploaded successfully to Cloudinary",
+    "upload_failed": "File upload to Cloudinary failed"
+  },
+  "db": {
+    "connection_error": "Database connection error",
+    "save_error": "Failed to save data to MongoDB",
+    "fetch_error": "Failed to fetch data from MongoDB"
+  },
+  "general": {
+    "success": "Action completed successfully",
+    "server_error": "Something went wrong. Please try again later.",
+    "not_found": "Requested resource was not found",
+    "deleted": "Resource deleted successfully",
+    "bad_request": "Invalid request parameters"
+  },
+  "referral": {
+    "already_used": "You have already used a referral code",
+    "invalid_code": "Invalid referral code",
+    "own_code": "Cannot use your own referral code",
+    "apply_failed": "Failed to apply referral reward",
+    "min_withdrawal": "Minimum withdrawal amount is ₹{{amount}}",
+    "insufficient_balance": "Insufficient wallet balance"
+  },
+  "rating": {
+    "score_range": "Score must be between 1 and 5",
+    "job_not_completed": "Job must be completed before rating",
+    "not_assigned": "You were not the assigned worker for this job",
+    "admin_no_rate": "Admins cannot rate",
+    "no_user_to_rate": "No user to rate for this job",
+    "already_rated": "You have already rated this job"
+  },
+  "application": {
+    "job_not_open": "Job is no longer accepting applications",
+    "kyc_pending": "Your KYC is not approved yet. Please wait for admin verification.",
+    "already_applied": "You have already applied for this job",
+    "already_processed": "Application has already been processed",
+    "cannot_withdraw": "Cannot withdraw an accepted application",
+    "contact_locked": "Contact is only revealed after acceptance"
+  }
+}

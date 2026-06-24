@@ -1,0 +1,37 @@
+
+/Users/ankityadav/lpu/rozgar/backend/cleanup.js
+  7:7  warning  'modelsPath' is assigned a value but never used  no-unused-vars
+  8:7  warning  'modelFiles' is assigned a value but never used  no-unused-vars
+
+/Users/ankityadav/lpu/rozgar/backend/controllers/authController.js
+   8:7  warning  'crypto' is assigned a value but never used  no-unused-vars
+  10:7  warning  'isDev' is assigned a value but never used   no-unused-vars
+
+/Users/ankityadav/lpu/rozgar/backend/controllers/jobController.js
+  294:10  warning  '_calcDistance' is defined but never used  no-unused-vars
+
+/Users/ankityadav/lpu/rozgar/backend/controllers/uploadController.js
+  10:13  warning  'folder' is assigned a value but never used  no-unused-vars
+
+/Users/ankityadav/lpu/rozgar/backend/controllers/workerController.js
+  2:7  warning  'Job' is assigned a value but never used   no-unused-vars
+  3:7  warning  'User' is assigned a value but never used  no-unused-vars
+
+/Users/ankityadav/lpu/rozgar/backend/middleware/errorHandler.js
+  1:38  warning  'next' is defined but never used  no-unused-vars
+
+/Users/ankityadav/lpu/rozgar/backend/routes/auth.js
+  11:9  warning  'upload' is assigned a value but never used  no-unused-vars
+
+/Users/ankityadav/lpu/rozgar/backend/routes/driver.js
+  5:3  warning  'uploadDocument' is assigned a value but never used  no-unused-vars
+
+/Users/ankityadav/lpu/rozgar/backend/seed.js
+  23:9  warning  'admin' is assigned a value but never used    no-unused-vars
+  34:9  warning  'workers' is assigned a value but never used  no-unused-vars
+
+/Users/ankityadav/lpu/rozgar/backend/utils/cloudinaryHelper.js
+  2:7  warning  'crypto' is assigned a value but never used  no-unused-vars
+
+✖ 14 problems (0 errors, 14 warnings)
+

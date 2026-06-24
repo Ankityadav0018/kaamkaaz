@@ -1,0 +1,21 @@
+import { Stack, LogLevel, PackageName } from './types';
+
+export const ALLOWED_STACKS: Stack[] = ['backend', 'frontend'];
+
+export const ALLOWED_LEVELS: LogLevel[] = ['debug', 'info', 'warn', 'error', 'fatal'];
+
+export const ALLOWED_PACKAGES: PackageName[] = [
+  'cache',
+  'controller',
+  'cron_job',
+  'db',
+  'domain',
+  'handler',
+  'repository',
+  'route',
+  'service',
+  'auth',
+  'config',
+  'middleware',
+  'utils',
+];
