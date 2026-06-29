@@ -5,11 +5,15 @@ const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db');
-// Firebase removed
 const i18next = require('./config/i18n');
 const i18nMiddleware = require('i18next-http-middleware');
 const errorHandler = require('./middleware/errorHandler');
+const { setupLogSanitizer, sanitizeRequestBody } = require('./middleware/logSanitizer');
+
+// ── Activate log sanitization FIRST (before any other code logs) ────────────
+setupLogSanitizer();
 
 dotenv.config();
 
@@ -45,15 +49,76 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Security Hardening
+// ── Security Headers (Section 5.2) ──────────────────────────────────────────
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+  // Prevent clickjacking
+  frameguard: { action: 'deny' },
+  // Prevent MIME-type sniffing
+  noSniff: true,
+  // Force HTTPS for 1 year including subdomains
+  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  // Don't send referrer in cross-origin requests
+  referrerPolicy: { policy: 'no-referrer' },
+  // Content Security Policy — restrict to own domain only
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc:  ["'self'"],
+      styleSrc:   ["'self'", "'unsafe-inline'"],
+      imgSrc:     ["'self'", 'data:', 'https://res.cloudinary.com'],
+      connectSrc: ["'self'"],
+      fontSrc:    ["'self'"],
+      objectSrc:  ["'none'"],
+      frameAncestors: ["'none'"],
+      upgradeInsecureRequests: []
+    }
+  },
+  // Disable camera, mic, geolocation
+  permissionsPolicy: {
+    features: {
+      camera:      ["'none'"],
+      microphone:  ["'none'"],
+      geolocation: ["'none'"]
+    }
+  },
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
 const server = http.createServer(app);
 const io = socketio(server, {
-  cors: { origin: process.env.FRONTEND_URL || '*', methods: ['GET', 'POST'] }
+  cors: { origin: process.env.FRONTEND_URL || '*', methods: ['GET', 'POST'] },
+  // Tune for high concurrency: larger ping timeout tolerates slow clients
+  pingTimeout:  60000,
+  pingInterval: 25000,
 });
+
+// ── Socket.io Redis Adapter — required for PM2 cluster mode ──────────────────
+// Without this, socket events emitted on worker #1 won't reach clients
+// connected to worker #2. The adapter syncs all rooms across processes.
+try {
+  const { createAdapter } = require('@socket.io/redis-adapter');
+  const { redisClient }   = require('./config/redis');
+  const pubClient = redisClient;
+  const subClient = redisClient.duplicate({
+    retryStrategy: (times) => times > 8 ? null : Math.min(times * 1000, 8000),
+    // enableOfflineQueue left ON — adapter calls subscribe() during init before
+    // the connection is fully ready; the queue buffers it safely.
+  });
+  // Must attach error handler — Node throws on unhandled 'error' events
+  subClient.on('error', (err) => {
+    if (!subClient._loggedErr) {
+      console.error('❌ Socket.io Redis sub-client error:', err.message);
+      subClient._loggedErr = true;
+    }
+  });
+  io.adapter(createAdapter(pubClient, subClient));
+  console.log('✅ Socket.io Redis adapter active (cluster-ready)');
+} catch (e) {
+  console.warn('⚠️  Socket.io Redis adapter not loaded:', e.message);
+}
+
+
+
 
 // Socket.io — user rooms for real-time notifications and chat
 io.on('connection', (socket) => {
@@ -122,11 +187,25 @@ io.on('connection', (socket) => {
 
 app.set('io', io);
 
-// Middleware
+// ── CORS (Section 5.4) — whitelist only known origins ───────────────────────
+const rawOrigins = process.env.ALLOWED_ORIGINS || '';
+const allowedOrigins = rawOrigins
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: '*',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    // In development allow all; in production enforce whitelist
+    if (process.env.NODE_ENV !== 'production') return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin '${origin}' not allowed`));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-intent', 'x-admin-co-approval']
 }));
 
 // Webhook routes must be placed before express.json() to parse raw body
@@ -134,7 +213,10 @@ app.use('/api/webhooks', require('./routes/webhookRoutes'));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(cookieParser()); // Required for httpOnly refresh token cookie (Section 1.2)
 app.use(morgan('dev'));
+app.use(sanitizeRequestBody); // Sanitize req.body for downstream logging (Section 6)
+
 
 // i18n Localization Middleware
 app.use(i18nMiddleware.handle(i18next));
@@ -160,6 +242,9 @@ app.use('/api/sos', require('./routes/sos'));
 app.use('/api/config', require('./routes/configRoutes'));
 app.use('/api/ai', require('./routes/aiRoutes'));
 app.use('/api/wallet', require('./routes/walletRoutes'));
+// Admin IP confirmation (Layer 3 — no auth required, link from email)
+app.use('/api/admin', require('./routes/adminConfirm'));
+
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -198,8 +283,12 @@ app.get('/delete-account', (req, res) => {
   `);
 });
 
+// Security monitoring — track 401/403 per IP, auto-block on abuse (Section 7)
+app.use(require('./middleware/securityMonitor'));
+
 // Global error handler
 app.use(errorHandler);
+
 
 const PORT = process.env.PORT || 5005;
 

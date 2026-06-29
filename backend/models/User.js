@@ -193,16 +193,30 @@ const userSchema = new mongoose.Schema({
     kycSubmittedAt: { type: Date, default: null },
   },
   isDeleted: { type: Boolean, default: false },
-  deletedAt: { type: Date, default: null }
+  deletedAt: { type: Date, default: null },
+
+  // ── Admin security fields (Layers 2 / 3) ─────────────────────────────────────────────────────────────────────────────
+  // Layer 2: TOTP secret (base32, stored for Google Authenticator)
+  totpSecret: { type: String, default: null, select: false },
+  // Layer 3: list of IPs this admin has confirmed as trusted
+  knownIps: { type: [String], default: [] },
+  // Layer 3: admin's IANA timezone (e.g. 'Asia/Kolkata') for off-hours detection
+  timezone: { type: String, default: 'Asia/Kolkata' },
+  // Layer 2: set when OTP fails 3× — admin locked until this date
+  adminLockUntil: { type: Date, default: null },
+
+  // ── Session security (Section 1.2) ────────────────────────────────────────
+  // Increment this on password reset / logout-all to invalidate ALL existing JWTs
+  tokenVersion: { type: Number, default: 0 }
 }, { timestamps: true });
 
 // Geospatial index
 userSchema.index({ location: '2dsphere' });
 
-// Hash password
+// Hash password — upgraded to salt rounds 12 (Section 1.1)
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  const salt = await bcrypt.genSalt(10);
+  const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });

@@ -72,8 +72,27 @@ The user is stuck or has a question. Look at the Current App Screen and their Ro
       history: formattedHistory,
     });
 
-    const result = await chatSession.sendMessage(message);
-    const responseText = result.response.text().replace(/\*/g, ''); // strip markdown bold/italics
+    let responseText = '';
+    let retries = 3;
+    let delay = 1000;
+
+    while (retries > 0) {
+      try {
+        const result = await chatSession.sendMessage(message);
+        responseText = result.response.text().replace(/\*/g, ''); // strip markdown bold/italics
+        break;
+      } catch (error) {
+        retries -= 1;
+        // Check if error is a 503 Service Unavailable
+        const isServiceUnavailable = error.message && error.message.includes('503');
+        if (retries === 0 || (!isServiceUnavailable && error.status !== 503)) {
+          throw error;
+        }
+        console.warn(`Gemini API 503 Error. Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay *= 2;
+      }
+    }
 
     res.status(200).json({
       success: true,

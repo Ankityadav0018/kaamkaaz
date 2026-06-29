@@ -37,14 +37,34 @@ if (process.env.REDIS_URL) {
 }
 
 // Global client for caching/rate-limiting
-const redisClient = new Redis(redisConfig);
+const redisClient = new Redis({
+  ...redisConfig,
+  // Stop retrying after ~60 seconds — prevents infinite log spam when Redis is down
+  retryStrategy: (times) => {
+    if (times > 8) {
+      console.error('❌ Redis: Could not connect after multiple attempts. Rate limiting and session features will be degraded.');
+      return null; // stop retrying
+    }
+    return Math.min(times * 1000, 8000); // exponential back-off, max 8s between retries
+  },
+  // enableOfflineQueue is intentionally left ON (default: true)
+  // rate-limit-redis and socket.io-adapter send commands during startup before
+  // the connection is ready — disabling the queue causes them to crash.
+});
 
 redisClient.on('connect', () => {
   console.log('✅ Connected to Redis successfully');
 });
 
 redisClient.on('error', (err) => {
-  console.error('❌ Redis connection error (will retry automatically):', err.message);
+  // Suppress repeated ECONNREFUSED noise — only log the first one
+  if (!redisClient._loggedConnErr) {
+    console.error('❌ Redis connection error (will retry):', err.message);
+    if (err.message.includes('ECONNREFUSED') && err.message.includes('127.0.0.1')) {
+      console.error('   👉 Fix: Set REDIS_URL in your .env file, or run: brew services start redis');
+    }
+    redisClient._loggedConnErr = true;
+  }
 });
 
 module.exports = {

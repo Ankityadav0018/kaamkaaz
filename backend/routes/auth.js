@@ -7,21 +7,25 @@ const {
   supabaseVerify, supabaseResetPassword, resetPassword, checkPhone, checkEmail,
   addPortfolioItem, deletePortfolioItem, addEmail
 } = require('../controllers/authController');
+const { refreshToken, logout } = require('../controllers/authSecurityController');
 const { protect } = require('../middleware/auth');
+const { authLimiter, authSlowDown } = require('../middleware/rateLimiter');
 
+// ── Public auth routes — rate-limited + slow-down ─────────────────────────────
+router.post('/register',                authSlowDown, authLimiter, register);
+router.post('/login',                   authSlowDown, authLimiter, login);
+router.post('/check-phone',             checkPhone);
+router.post('/check-email',             checkEmail);
+router.post('/supabase-verify',         supabaseVerify);
+router.post('/supabase-reset-password', authLimiter, supabaseResetPassword);
+router.post('/reset-password',          authLimiter, resetPassword);
 
-router.post('/register', register);
-router.post('/login', login);
-router.post('/check-phone', checkPhone);
-router.post('/check-email', checkEmail);
-router.post('/supabase-verify', supabaseVerify);
-router.post('/supabase-reset-password', supabaseResetPassword);
-router.post('/reset-password', resetPassword);
+// ── Section 1.2 — Refresh token rotation + logout ────────────────────────────
+router.post('/refresh-token', refreshToken);
+router.post('/logout',        protect, logout);
 
 // Intermediary page for deep linking
 router.get('/app-redirect', (req, res) => {
-  // Grab the hash fragments (like #access_token=...) passed by Supabase
-  // We need to pass them to the app using JS
   res.send(`
     <!DOCTYPE html>
     <html lang="en">
@@ -43,29 +47,25 @@ router.get('/app-redirect', (req, res) => {
         <a id="redirectBtn" href="io.supabase.kaamkaaz://login-callback" class="btn">Open App</a>
       </div>
       <script>
-        // Forward the URL hash containing the auth tokens to the app!
         const btn = document.getElementById('redirectBtn');
         btn.href = "io.supabase.kaamkaaz://login-callback" + window.location.hash;
-        
-        // Auto redirect attempt (may be blocked by browser, hence the button)
-        setTimeout(() => {
-          window.location.href = btn.href;
-        }, 500);
+        setTimeout(() => { window.location.href = btn.href; }, 500);
       </script>
     </body>
     </html>
   `);
 });
 
-router.get('/me', protect, getMe);
-router.put('/profile', protect, updateProfile);
-router.post('/add-email', protect, addEmail);
-router.put('/location', protect, updateLocation);
-router.put('/fcm-token', protect, updateFcmToken);
-router.put('/kyc', protect, updateKyc);
-router.put('/change-password', protect, changePassword);
-router.post('/delete-account', protect, deleteAccount);
-router.post('/portfolio', protect, addPortfolioItem);
+// ── Protected routes ──────────────────────────────────────────────────────────
+router.get('/me',                   protect, getMe);
+router.put('/profile',              protect, updateProfile);
+router.post('/add-email',           protect, addEmail);
+router.put('/location',             protect, updateLocation);
+router.put('/fcm-token',            protect, updateFcmToken);
+router.put('/kyc',                  protect, updateKyc);
+router.put('/change-password',      protect, changePassword);
+router.post('/delete-account',      protect, deleteAccount);
+router.post('/portfolio',           protect, addPortfolioItem);
 router.delete('/portfolio/:itemId', protect, deletePortfolioItem);
 
 module.exports = router;
