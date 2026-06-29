@@ -46,8 +46,8 @@ const adminAuditLogSchema = new mongoose.Schema({
   },
   timestamp: {
     type: Date,
-    default: Date.now,
-    index: true
+    default: Date.now
+    // index removed — the TTL schema.index() below already creates {timestamp:1}
   }
 }, { timestamps: false });
 
