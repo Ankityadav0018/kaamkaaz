@@ -82,12 +82,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     if (!_formKey.currentState!.validate()) return;
     final identifier = _identifierCtrl.text.trim();
     final pass = _passCtrl.text;
-    final success = await ref
+    
+    final result = await ref
         .read(authProvider.notifier)
         .login(identifier, pass, rememberMe: _rememberMe);
-    if (!success) {
+        
+    if (result['success'] == true) {
+      if (result['requireAdminOtp'] == true) {
+        if (!mounted) return;
+        context.push('/auth/admin-verify-otp', extra: result['otpMethod']);
+      }
+    } else {
       if (!mounted) return;
-      _showSnack(ref.read(authProvider).error ?? 'Login failed', isError: true);
+      _showSnack(result['message'] ?? 'Login failed', isError: true);
     }
   }
 

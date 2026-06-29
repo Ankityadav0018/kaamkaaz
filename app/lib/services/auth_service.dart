@@ -63,11 +63,27 @@ class AuthService {
         );
         final idToken = res.session?.accessToken;
         if (idToken != null) {
-          // Verify with backend (email logins via Supabase always persist)
-          return await verifyWithSupabase(idToken, '', persist: true);
+          final verifyRes = await verifyWithSupabase(idToken, '', persist: true);
+          if (verifyRes['success'] == true) {
+            final user = verifyRes['user'] as UserModel;
+            if (user.role == 'admin') {
+              // Try auto-login as admin to get the pending token
+              final adminRes = await adminLogin(identifier, password);
+              if (adminRes['success'] == true) {
+                return {'success': true, 'requireAdminOtp': true, 'otpMethod': adminRes['otpMethod']};
+              }
+            }
+          }
+          return verifyRes;
         }
         return {'success': false, 'message': 'Failed to retrieve auth token'};
       } on AuthException catch (e) {
+        // Fallback: Try admin login if Supabase auth fails
+        final adminRes = await adminLogin(identifier, password);
+        if (adminRes['success'] == true) {
+          return {'success': true, 'requireAdminOtp': true, 'otpMethod': adminRes['otpMethod']};
+        }
+
         String msg = 'Login failed';
         if (e.message.toLowerCase().contains('invalid login credentials')) {
           msg = 'error_invalid_credential';
@@ -89,6 +105,42 @@ class AuthService {
         return {'success': true, 'user': UserModel.fromJson(res['data']['user'])};
       }
       return {'success': false, 'message': res['message'] ?? 'Login failed'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> adminLogin(String email, String password) async {
+    final body = {
+      'email': email.trim().toLowerCase(),
+      'password': password,
+    };
+    try {
+      final res = await ApiService.post(ApiConfig.adminLogin, body, auth: false);
+      if (res['success'] == true && res['token'] != null) {
+        // Temporarily save the pending token so ApiService can use it for verify-otp
+        await ApiService.saveToken(res['token'], persist: false); 
+        return {'success': true, 'message': res['message'], 'otpMethod': res['otpMethod']};
+      }
+      return {'success': false, 'message': res['message'] ?? 'Admin login failed'};
+    } catch (e) {
+      return {'success': false, 'message': ErrorHandler.getMessage(e)};
+    }
+  }
+
+  static Future<Map<String, dynamic>> adminVerifyOtp(String otp) async {
+    try {
+      final res = await ApiService.post(ApiConfig.adminVerifyOtp, {'otp': otp.trim()}, auth: true);
+      if (res['success'] == true && res['token'] != null) {
+        // Save the full permanent token
+        await ApiService.saveToken(res['token'], persist: true);
+        if (res['admin'] != null) {
+          final userJson = Map<String, dynamic>.from(res['admin']);
+          userJson['_id'] = userJson['id']; // map id to _id for UserModel
+          return {'success': true, 'user': UserModel.fromJson(userJson)};
+        }
+      }
+      return {'success': false, 'message': res['message'] ?? 'OTP verification failed'};
+    } catch (e) {
+      return {'success': false, 'message': ErrorHandler.getMessage(e)};
     }
   }
 

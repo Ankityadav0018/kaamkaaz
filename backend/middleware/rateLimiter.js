@@ -9,6 +9,12 @@ const slowDown   = require('express-slow-down');
 const { RedisStore } = require('rate-limit-redis');
 const { redisClient } = require('../config/redis');
 
+// Workaround for express-rate-limit > 6.x to safely get IP without triggering the validation error
+const getIp = (req) => {
+  if (req.ip) return req.ip;
+  return req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown';
+};
+
 // ─── Shared Redis store factory ───────────────────────────────────────────────
 const makeRedisStore = (prefix) => new RedisStore({
   sendCommand: (...args) => redisClient.call(...args),
@@ -48,7 +54,7 @@ exports.authSlowDown = slowDown({
 exports.uploadLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 10,
-  keyGenerator: (req) => req.user ? `user:${req.user.id}` : req.ip,
+  keyGenerator: (req) => req.user ? `user:${req.user.id}` : getIp(req),
   store: makeRedisStore('upload'),
   message: { success: false, message: 'Upload limit reached. Maximum 10 uploads per hour.' }
 });
@@ -57,7 +63,7 @@ exports.uploadLimiter = rateLimit({
 exports.recruiterJobPostLimiter = rateLimit({
   windowMs: 24 * 60 * 60 * 1000,
   max: 20,
-  keyGenerator: (req) => req.user ? `rec_post:${req.user.id}` : req.ip,
+  keyGenerator: (req) => req.user ? `rec_post:${req.user.id}` : getIp(req),
   store: makeRedisStore('rec_post'),
   message: { success: false, message: 'Daily job post limit reached (20 per day). Try again tomorrow.' }
 });
@@ -66,7 +72,7 @@ exports.recruiterJobPostLimiter = rateLimit({
 exports.recruiterProfileViewLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 100,
-  keyGenerator: (req) => req.user ? `rec_view:${req.user.id}` : req.ip,
+  keyGenerator: (req) => req.user ? `rec_view:${req.user.id}` : getIp(req),
   store: makeRedisStore('rec_view'),
   message: { success: false, message: 'Profile view limit reached (100 per hour). Please slow down.' }
 });
@@ -75,7 +81,7 @@ exports.recruiterProfileViewLimiter = rateLimit({
 exports.apiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 300,
-  keyGenerator: (req) => req.user ? req.user.id.toString() : req.ip,
+  keyGenerator: (req) => req.user ? req.user.id.toString() : getIp(req),
   store: makeRedisStore('api'),
   message: { success: false, message: 'API rate limit exceeded.' }
 });

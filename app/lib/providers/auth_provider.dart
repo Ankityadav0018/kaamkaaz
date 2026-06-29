@@ -152,12 +152,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   // identifier = phone number (10 digits) OR email address
-  Future<bool> login(String identifier, String password,
+  Future<Map<String, dynamic>> login(String identifier, String password,
       {bool rememberMe = false}) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final result = await AuthService.login(identifier, password, rememberMe: rememberMe);
       if (result['success'] == true) {
+        if (result['requireAdminOtp'] == true) {
+          state = state.copyWith(isLoading: false);
+          return result;
+        }
+
         final user = result['user'] as UserModel;
 
         // Handle "Remember Me" storage using RememberMeService
@@ -178,6 +183,38 @@ class AuthNotifier extends StateNotifier<AuthState> {
         SocketService().connect(user.id);
         _setupPushNotifications();
         
+        return result;
+      } else {
+        state = state.copyWith(isLoading: false, error: result['message']);
+        return result;
+      }
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> adminLogin(String email, String password) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final result = await AuthService.adminLogin(email, password);
+      state = state.copyWith(isLoading: false, error: result['success'] == true ? null : result['message']);
+      return result;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  Future<bool> adminVerifyOtp(String otp) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final result = await AuthService.adminVerifyOtp(otp);
+      if (result['success'] == true) {
+        final user = result['user'] as UserModel;
+        state = state.copyWith(user: user, isLoading: false);
+        SocketService().connect(user.id);
+        _setupPushNotifications();
         return true;
       } else {
         state = state.copyWith(isLoading: false, error: result['message']);

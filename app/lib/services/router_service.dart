@@ -5,6 +5,7 @@ import '../providers/auth_provider.dart';
 import '../screens/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/verify_otp_screen.dart';
+import '../screens/auth/admin_otp_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/auth/set_pin_screen.dart';
 
@@ -215,10 +216,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/auth/login', builder: (_, __) => const LoginScreen()),
       GoRoute(
         path: '/auth/verify-otp',
-        builder: (context, state) {
-          final email = state.extra as String? ?? '';
-          return VerifyOtpScreen(email: email);
-        },
+        builder: (context, state) =>
+            VerifyOtpScreen(email: state.extra as String),
+      ),
+      GoRoute(
+        path: '/auth/admin-verify-otp',
+        builder: (context, state) =>
+            AdminOtpScreen(method: state.extra as String),
       ),
       GoRoute(path: '/auth/add-email', builder: (_, __) => const AddEmailScreen()),
       GoRoute(

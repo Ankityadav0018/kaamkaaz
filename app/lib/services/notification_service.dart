@@ -182,6 +182,8 @@ class NotificationService {
 
   static Future<void> updateFcmToken(String token) async {
     try {
+      final authToken = await ApiService.getToken();
+      if (authToken == null) return; // Don't try to send token if user isn't logged in
       await ApiService.post(ApiConfig.updateFcmToken, {'fcmToken': token});
     } catch (e) {
       return;

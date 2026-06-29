@@ -8,6 +8,8 @@ class ApiConfig {
   static const String requestOtp = '/auth/request-otp';
   static const String verifyOtp = '/auth/verify-otp';
   static const String supabaseVerify = '/auth/supabase-verify';
+  static const String adminLogin = '/admin/auth/login';
+  static const String adminVerifyOtp = '/admin/auth/verify-otp';
   static const String supabaseResetPassword = '/auth/supabase-reset-password';
   static const String me = '/auth/me';
   static const String updateProfile = '/auth/profile';
