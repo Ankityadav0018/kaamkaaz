@@ -100,6 +100,6 @@ The user is stuck or has a question. Look at the Current App Screen and their Ro
     });
   } catch (error) {
     console.error('AI Controller Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to process AI request' });
+    res.status(500).json({ success: false, message: 'Failed to process AI request', errorDetails: error.message, stack: error.stack });
   }
 };

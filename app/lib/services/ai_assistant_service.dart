@@ -153,6 +153,9 @@ class AIAssistantNotifier extends StateNotifier<AIAssistantState> {
         // Auto read aloud
         await readAloud(responseText, locale);
       } else {
+        if (response['errorDetails'] != null) {
+          LoggerService.e('AI Error Details: ${response['errorDetails']} \n ${response['stack']}');
+        }
         throw response['message'] ?? 'Unknown error';
       }
       
