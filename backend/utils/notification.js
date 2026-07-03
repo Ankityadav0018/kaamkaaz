@@ -1,18 +1,7 @@
 const Notification = require('../models/Notification');
 const User = require('../models/User');
-const admin = require('firebase-admin');
+const admin = require('../config/firebase');
 const path = require('path');
-
-// Initialize Firebase Admin
-try {
-  const serviceAccount = require('../config/firebase-service-account.json');
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-  console.log('Firebase Admin initialized successfully');
-} catch (error) {
-  console.error('Failed to initialize Firebase Admin:', error.message);
-}
 
 /**
  * Creates a notification, emits via socket, and sends via FCM Push Notification.

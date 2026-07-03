@@ -36,7 +36,8 @@ const {
   adminLogin,
   adminVerifyOtp,
   adminLogout,
-  setupTotp
+  setupTotp,
+  setupPhone
 } = require('../controllers/adminAuthController');
 
 const { adminGetDisputes, adminUpdateDispute, getDisputeStats } = require('../controllers/disputeController');
@@ -57,6 +58,7 @@ const adminGuard = [adminSession, adminAnomaly, adminIntent];
 
 router.post('/auth/login',       adminLogin);
 router.post('/auth/verify-otp',  adminVerifyOtp);
+router.post('/auth/setup-phone', setupPhone);
 router.post('/auth/logout',      adminLogout);
 router.post('/auth/setup-totp',  adminSession, setupTotp); // requires full token
 

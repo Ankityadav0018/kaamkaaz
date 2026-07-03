@@ -34,6 +34,9 @@ const userSchema = new mongoose.Schema({
     enum: ['worker', 'recruiter', 'admin'],
     default: 'worker'
   },
+  // Admin / 2FA Specific
+  twoFactorEnabled: { type: Boolean, default: false },
+  otpPending: { type: Boolean, default: false },
   // Worker-specific
   skills: [{ type: String, trim: true }],
   village: { type: String, trim: true, default: '' },
