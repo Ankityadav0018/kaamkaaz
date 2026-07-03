@@ -116,9 +116,16 @@ class AuthService {
     try {
       final res = await ApiService.post(ApiConfig.adminLogin, body, auth: false);
       if (res['success'] == true && res['token'] != null) {
-        // Temporarily save the pending token so ApiService can use it for verify-otp
+        // Temporarily save the pending token so ApiService can use it for verify-otp / setup-phone
         await ApiService.saveToken(res['token'], persist: false); 
-        return {'success': true, 'message': res['message'], 'otpMethod': res['otpMethod']};
+        
+        return {
+          'success': true, 
+          'message': res['message'], 
+          'requireSetup': res['requireSetup'] == true,
+          'requireAdminOtp': res['requireAdminOtp'] == true,
+          'phone': res['phone']
+        };
       }
       return {'success': false, 'message': res['message'] ?? 'Admin login failed'};
     } catch (e) {
@@ -126,19 +133,37 @@ class AuthService {
     }
   }
 
-  static Future<Map<String, dynamic>> adminVerifyOtp(String otp) async {
+  static Future<Map<String, dynamic>> adminSetupPhone(String idToken) async {
     try {
-      final res = await ApiService.post(ApiConfig.adminVerifyOtp, {'otp': otp.trim()}, auth: true);
+      final res = await ApiService.post(ApiConfig.adminSetupPhone, {'idToken': idToken}, auth: true);
       if (res['success'] == true && res['token'] != null) {
         // Save the full permanent token
         await ApiService.saveToken(res['token'], persist: true);
         if (res['admin'] != null) {
           final userJson = Map<String, dynamic>.from(res['admin']);
-          userJson['_id'] = userJson['id']; // map id to _id for UserModel
+          userJson['role'] = 'admin'; // Ensure role is injected
           return {'success': true, 'user': UserModel.fromJson(userJson)};
         }
       }
-      return {'success': false, 'message': res['message'] ?? 'OTP verification failed'};
+      return {'success': false, 'message': res['message'] ?? 'Phone setup failed'};
+    } catch (e) {
+      return {'success': false, 'message': ErrorHandler.getMessage(e)};
+    }
+  }
+
+  static Future<Map<String, dynamic>> adminVerifyOtp(String idToken) async {
+    try {
+      final res = await ApiService.post(ApiConfig.adminVerifyOtp, {'idToken': idToken}, auth: true);
+      if (res['success'] == true && res['token'] != null) {
+        // Save the full permanent token
+        await ApiService.saveToken(res['token'], persist: true);
+        if (res['admin'] != null) {
+          final userJson = Map<String, dynamic>.from(res['admin']);
+          userJson['role'] = 'admin';
+          return {'success': true, 'user': UserModel.fromJson(userJson)};
+        }
+      }
+      return {'success': false, 'message': res['message'] ?? 'Verification failed'};
     } catch (e) {
       return {'success': false, 'message': ErrorHandler.getMessage(e)};
     }

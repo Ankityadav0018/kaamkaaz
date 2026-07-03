@@ -37,6 +37,7 @@ dependencies:
   logger: ^2.7.0
   firebase_core: ^4.9.0
   firebase_messaging: ^16.2.2
+  firebase_auth: ^6.5.4
   speech_to_text: ^7.4.0
   translator: ^1.0.4+1
   record: ^7.0.0

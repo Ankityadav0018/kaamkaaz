@@ -88,9 +88,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         .login(identifier, pass, rememberMe: _rememberMe);
         
     if (result['success'] == true) {
-      if (result['requireAdminOtp'] == true) {
+      if (result['requireSetup'] == true) {
         if (!mounted) return;
-        context.push('/auth/admin-verify-otp', extra: result['otpMethod']);
+        context.push('/auth/admin-setup-phone');
+      } else if (result['requireAdminOtp'] == true) {
+        if (!mounted) return;
+        context.push('/auth/admin-verify-otp', extra: result['phone']);
       }
     } else {
       if (!mounted) return;

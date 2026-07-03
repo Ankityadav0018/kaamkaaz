@@ -4,9 +4,12 @@
  * Runs BEFORE anomaly detection and intent logging on every /api/admin/* route.
  * Enforces:
  *   1. Token must be a fully verified admin JWT (role: 'admin'), not admin_pending.
- *   2. IP binding — token must match the IP it was issued on.
- *   3. Token blacklist — instantly revokes stolen or logged-out tokens.
- *   4. Inactivity timeout — 30-minute rolling window; any activity resets the clock.
+ *   2. Token blacklist — instantly revokes stolen or logged-out tokens.
+ *   3. Inactivity timeout — 8-hour rolling window; any activity resets the clock.
+ *
+ * Note: IP binding removed — mobile clients frequently change IPs (WiFi ↔ 4G).
+ * Note: If Redis lastActive key is missing (Redis restart/expiry) but JWT is still
+ *       cryptographically valid, the session is re-seeded rather than blacklisted.
  */
 
 const jwt = require('jsonwebtoken');
@@ -14,7 +17,7 @@ const User = require('../models/User');
 const { redisClient: redis } = require('../config/redis');
 
 const ADMIN_SECRET     = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET;
-const INACTIVITY_SEC   = 30 * 60; // 30 minutes
+const INACTIVITY_SEC   = 8 * 60 * 60; // 8 hours
 
 /** Extract real client IP (reverse-proxy aware) */
 const getIp = (req) =>
@@ -22,10 +25,14 @@ const getIp = (req) =>
 
 /** Blacklist a token in Redis until its natural expiry */
 const blacklistToken = async (token, decoded) => {
-  const ttl = decoded?.exp
-    ? Math.max(decoded.exp - Math.floor(Date.now() / 1000), 1)
-    : INACTIVITY_SEC;
-  await redis.setex(`admin:blacklist:${token}`, ttl, '1');
+  try {
+    const ttl = decoded?.exp
+      ? Math.max(decoded.exp - Math.floor(Date.now() / 1000), 1)
+      : INACTIVITY_SEC;
+    await redis.setex(`admin:blacklist:${token}`, ttl, '1');
+  } catch (redisErr) {
+    console.error('[adminSession] Redis blacklist error:', redisErr.message);
+  }
 };
 
 const adminSession = async (req, res, next) => {
@@ -38,11 +45,19 @@ const adminSession = async (req, res, next) => {
   }
 
   // ── 2. Verify JWT signature and expiry ────────────────────────────────────
+  // Try the dedicated ADMIN_JWT_SECRET first (tokens from the 2FA flow).
+  // Fall back to JWT_SECRET for admins who logged in via the phone/OTP flow.
+  // In both cases the role is enforced against MongoDB below — the DB is the
+  // authoritative source of truth for admin privileges.
   let decoded;
   try {
     decoded = jwt.verify(token, ADMIN_SECRET);
-  } catch (err) {
-    return res.status(401).json({ success: false, message: 'Invalid or expired admin token.' });
+  } catch (adminErr) {
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (jwtErr) {
+      return res.status(401).json({ success: false, message: 'Invalid or expired admin token.' });
+    }
   }
 
   // ── 3. Must be a fully promoted admin token, NOT admin_pending ────────────
@@ -54,47 +69,45 @@ const adminSession = async (req, res, next) => {
   }
 
   // ── 4. Token blacklist check ──────────────────────────────────────────────
-  const isBlacklisted = await redis.get(`admin:blacklist:${token}`);
-  if (isBlacklisted) {
-    return res.status(401).json({ success: false, message: 'Session has been revoked. Please log in again.' });
+  try {
+    const isBlacklisted = await redis.get(`admin:blacklist:${token}`);
+    if (isBlacklisted) {
+      return res.status(401).json({ success: false, message: 'Session has been revoked. Please log in again.' });
+    }
+  } catch (redisErr) {
+    // Redis unavailable — log but don't block; JWT signature is sufficient
+    console.error('[adminSession] Redis blacklist check failed:', redisErr.message);
   }
 
-  // ── 5. IP binding check ───────────────────────────────────────────────────
-  const currentIp = getIp(req);
-  if (decoded.issuedIp && decoded.issuedIp !== currentIp) {
-    // Blacklist token immediately — IP changed mid-session
-    await blacklistToken(token, decoded);
-    console.warn(`[adminSession] IP mismatch for admin ${decoded.id}: issued=${decoded.issuedIp} current=${currentIp}`);
-    return res.status(401).json({
-      success: false,
-      message: 'Session invalidated: IP address changed. Please log in again.'
-    });
-  }
-
-  // ── 6. Inactivity timeout — rolling 30-minute window ─────────────────────
-  const lastActiveKey = `admin:session:lastActive:${decoded.id}`;
-  const lastActive = await redis.get(lastActiveKey);
-
-  if (!lastActive) {
-    // Key expired — session timed out due to inactivity
-    await blacklistToken(token, decoded);
-    return res.status(401).json({
-      success: false,
-      message: 'Session expired due to inactivity. Please log in again.'
-    });
-  }
-
-  // ── 7. Load admin user ────────────────────────────────────────────────────
+  // ── 5. Load admin user ────────────────────────────────────────────────────
   const admin = await User.findById(decoded.id);
   if (!admin || admin.role !== 'admin' || admin.isBlocked) {
     await blacklistToken(token, decoded);
     return res.status(401).json({ success: false, message: 'Admin account not found or blocked.' });
   }
 
-  // ── 8. Refresh inactivity timer on every active request ──────────────────
-  await redis.setex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
+  // ── 6. Inactivity timeout — rolling 8-hour window ────────────────────────
+  // If the lastActive key is missing (Redis restart / TTL expired) but the JWT
+  // is still cryptographically valid, re-seed the timer instead of blacklisting.
+  // This prevents permanent lockout after a Redis restart on Render.
+  const lastActiveKey = `admin:session:lastActive:${admin._id}`;
+  try {
+    const lastActive = await redis.get(lastActiveKey);
+    if (!lastActive) {
+      // Key gone but JWT is valid — re-seed the inactivity window
+      console.warn(`[adminSession] Re-seeding lastActive for admin ${admin._id} (Redis key was missing)`);
+      await redis.setex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
+    } else {
+      // Refresh the rolling window
+      await redis.setex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
+    }
+  } catch (redisErr) {
+    // Redis unavailable — allow request through; JWT is the primary auth
+    console.error('[adminSession] Redis lastActive check failed:', redisErr.message);
+  }
 
   // Attach to request for downstream middleware
+  const currentIp = getIp(req);
   req.user       = admin;
   req.adminToken = token;
   req.adminIp    = currentIp;

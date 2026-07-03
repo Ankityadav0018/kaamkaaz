@@ -206,23 +206,41 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<bool> adminVerifyOtp(String otp) async {
+  Future<Map<String, dynamic>> adminVerifyOtp(String idToken) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
-      final result = await AuthService.adminVerifyOtp(otp);
+      final result = await AuthService.adminVerifyOtp(idToken);
       if (result['success'] == true) {
         final user = result['user'] as UserModel;
         state = state.copyWith(user: user, isLoading: false);
         SocketService().connect(user.id);
         _setupPushNotifications();
-        return true;
       } else {
         state = state.copyWith(isLoading: false, error: result['message']);
-        return false;
       }
+      return result;
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> adminSetupPhone(String idToken) async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final result = await AuthService.adminSetupPhone(idToken);
+      if (result['success'] == true) {
+        final user = result['user'] as UserModel;
+        state = state.copyWith(user: user, isLoading: false);
+        SocketService().connect(user.id);
+        _setupPushNotifications();
+      } else {
+        state = state.copyWith(isLoading: false, error: result['message']);
+      }
+      return result;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return {'success': false, 'message': e.toString()};
     }
   }
 

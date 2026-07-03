@@ -5,16 +5,18 @@ const User = require('../models/User');
 const AdminAuditLog = require('../models/AdminAuditLog');
 const { redisClient: redis } = require('../config/redis');
 const adminMailer = require('../services/adminMailer');
+const firebaseAdmin = require('../config/firebase');
 
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const PENDING_JWT_EXPIRE = process.env.ADMIN_JWT_PENDING_EXPIRE || '15m';
-const FULL_JWT_EXPIRE    = process.env.ADMIN_JWT_EXPIRE          || '30m';
+const FULL_JWT_EXPIRE    = process.env.ADMIN_JWT_EXPIRE          || '8h'; // 8 hours to survive Redis restarts
 const ADMIN_SECRET       = process.env.ADMIN_JWT_SECRET          || process.env.JWT_SECRET;
 const OTP_EXPIRE_SEC     = 5 * 60; // 5 minutes
 const LOCK_DURATION_SEC  = 10 * 60; // 10 minutes
 const MAX_OTP_ATTEMPTS   = 3;
+const INACTIVITY_SEC     = 8 * 60 * 60; // 8 hours (must match adminSession.js)
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -67,7 +69,7 @@ exports.adminLogin = async (req, res) => {
     }
 
     // ── Find admin ────────────────────────────────────────────────────────────
-    const admin = await User.findOne({ email: email.toLowerCase(), role: 'admin' }).select('+password +totpSecret');
+    const admin = await User.findOne({ email: email.toLowerCase(), role: 'admin' }).select('+password');
     if (!admin) {
       await redis.multi()
         .incr(ipFailKey)
@@ -100,37 +102,31 @@ exports.adminLogin = async (req, res) => {
     // ── Reset IP fail counter on successful password ──────────────────────────
     await redis.del(ipFailKey);
 
-    // ── Issue admin_pending JWT (Layer 1 complete) ────────────────────────────
+    // ── Issue admin_pending JWT (Layer 1 complete) ─────────────────────────────
+    // Note: issuedIp removed — mobile clients change IPs (WiFi ↔ 4G)
     const pendingToken = signAdminJwt(
       {
         id: admin._id,
-        role: 'admin_pending',
-        issuedIp: ip,
-        hasTOTP: !!admin.totpSecret
+        role: 'admin_pending'
       },
       PENDING_JWT_EXPIRE
     );
 
-    // ── Send email OTP if admin has no TOTP set up ────────────────────────────
-    if (!admin.totpSecret) {
-      const otp = generateOtp();
-      const otpKey = `admin:otp:${admin._id}`;
-      await redis.setex(otpKey, OTP_EXPIRE_SEC, otp);
-
-      await adminMailer.sendOtpEmail({
-        to: admin.email,
-        otp,
-        adminName: admin.name
+    if (!admin.twoFactorEnabled) {
+      return res.status(200).json({
+        success: true,
+        message: 'Password verified. Please set up two-factor authentication.',
+        token: pendingToken,
+        requireSetup: true
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: admin.totpSecret
-        ? 'Password verified. Enter your authenticator app code.'
-        : 'Password verified. A one-time code has been sent to your registered email.',
+      message: 'Password verified. Please verify your phone number.',
       token: pendingToken,
-      otpMethod: admin.totpSecret ? 'totp' : 'email'
+      requireAdminOtp: true,
+      phone: admin.phone
     });
 
   } catch (err) {
@@ -151,11 +147,11 @@ exports.adminLogin = async (req, res) => {
  */
 exports.adminVerifyOtp = async (req, res) => {
   try {
-    const { otp } = req.body;
+    const { idToken } = req.body;
     const ip = getIp(req);
 
-    if (!otp) {
-      return res.status(400).json({ success: false, message: 'OTP is required.' });
+    if (!idToken) {
+      return res.status(400).json({ success: false, message: 'Firebase ID Token is required.' });
     }
 
     // ── Validate the admin_pending token ──────────────────────────────────────
@@ -182,10 +178,8 @@ exports.adminVerifyOtp = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Token has been revoked.' });
     }
 
-    // ── IP must match the one used in adminLogin ──────────────────────────────
-    if (decoded.issuedIp !== ip) {
-      return res.status(401).json({ success: false, message: 'IP address mismatch. Please log in again.' });
-    }
+    // ── IP must match the one used in adminLogin ────────────────────────────────
+    // IP check removed — mobile clients frequently change IPs between login steps
 
     const admin = await User.findById(decoded.id).select('+totpSecret');
     if (!admin || admin.role !== 'admin') {
@@ -204,25 +198,21 @@ exports.adminVerifyOtp = async (req, res) => {
 
     const attemptsKey = `admin:otp_attempts:${admin._id}`;
 
-    // ── OTP Validation ────────────────────────────────────────────────────────
+    // ── OTP Validation via Firebase Admin SDK ─────────────────────────────────
     let otpValid = false;
+    try {
+      const decodedFirebaseToken = await firebaseAdmin.auth().verifyIdToken(idToken);
+      const firebasePhone = decodedFirebaseToken.phone_number;
+      
+      // Compare last 10 digits to ignore country code variations
+      const firebaseLast10 = firebasePhone ? firebasePhone.slice(-10) : '';
+      const adminLast10 = admin.phone ? admin.phone.toString().slice(-10) : '';
 
-    if (admin.totpSecret) {
-      // TOTP (Google Authenticator) — window:1 allows ±30s clock drift
-      otpValid = speakeasy.totp.verify({
-        secret: admin.totpSecret,
-        encoding: 'base32',
-        token: otp.toString(),
-        window: 1
-      });
-    } else {
-      // Email OTP stored in Redis
-      const otpKey = `admin:otp:${admin._id}`;
-      const storedOtp = await redis.get(otpKey);
-      if (storedOtp && storedOtp === otp.toString()) {
+      if (firebaseLast10 && firebaseLast10 === adminLast10) {
         otpValid = true;
-        await redis.del(otpKey); // one-time use
       }
+    } catch (error) {
+      console.error('[Firebase Verify Error]', error);
     }
 
     if (!otpValid) {
@@ -234,7 +224,6 @@ exports.adminVerifyOtp = async (req, res) => {
         // Lock the account and blacklist the pending token
         await redis.setex(lockKey, LOCK_DURATION_SEC, '1');
         await redis.del(attemptsKey);
-        // Blacklist the pending token to prevent reuse
         await redis.setex(blacklistKey, 15 * 60, '1');
 
         await adminMailer.sendLockoutAlert({
@@ -251,7 +240,7 @@ exports.adminVerifyOtp = async (req, res) => {
 
       return res.status(401).json({
         success: false,
-        message: `Invalid OTP. ${MAX_OTP_ATTEMPTS - attempts} attempt(s) remaining.`
+        message: `Invalid or expired Phone verification. ${MAX_OTP_ATTEMPTS - attempts} attempt(s) remaining.`
       });
     }
 
@@ -261,21 +250,24 @@ exports.adminVerifyOtp = async (req, res) => {
     // ── Blacklist the pending token (single-use) ──────────────────────────────
     await redis.setex(blacklistKey, 15 * 60, '1');
 
-    // ── Issue full admin JWT (Layer 2 complete) ───────────────────────────────
+    // ── Issue full admin JWT (Layer 2 complete) ──────────────────────────────
     const sessionId = `${admin._id}-${Date.now()}`;
     const fullToken = signAdminJwt(
       {
         id: admin._id,
         role: 'admin',
-        issuedIp: ip,
         sessionId
       },
       FULL_JWT_EXPIRE
     );
 
-    // ── Seed inactivity timer (Layer 5) ──────────────────────────────────────
+    // ── Seed inactivity timer (Layer 5) ────────────────────────────────────
     const lastActiveKey = `admin:session:lastActive:${admin._id}`;
-    await redis.setex(lastActiveKey, 30 * 60, Date.now().toString());
+    try {
+      await redis.setex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
+    } catch (redisErr) {
+      console.error('[adminVerifyOtp] Redis setex failed:', redisErr.message);
+    }
 
     return res.status(200).json({
       success: true,
@@ -303,28 +295,120 @@ exports.adminVerifyOtp = async (req, res) => {
  */
 exports.adminLogout = async (req, res) => {
   try {
+    const adminId = req.admin.id;
     const authHeader = req.headers.authorization || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
     if (token) {
-      let decoded;
-      try {
-        decoded = jwt.decode(token); // decode only — may already be expired
-      } catch {}
-
-      const ttl = decoded?.exp ? Math.max(decoded.exp - Math.floor(Date.now() / 1000), 1) : 30 * 60;
-      await redis.setex(`admin:blacklist:${token}`, ttl, '1');
-
-      // Clear inactivity timer
-      if (decoded?.id) {
-        await redis.del(`admin:session:lastActive:${decoded.id}`);
-      }
+      await redis.setex(`admin:blacklist:${token}`, 24 * 60 * 60, '1');
     }
+    
+    await redis.del(`admin:session:lastActive:${adminId}`);
+
+    await AdminAuditLog.create({
+      adminId,
+      action: 'LOGOUT',
+      ipAddress: getIp(req),
+      userAgent: req.headers['user-agent']
+    });
 
     return res.status(200).json({ success: true, message: 'Logged out successfully.' });
   } catch (err) {
     console.error('[adminLogout] Error:', err);
     return res.status(500).json({ success: false, message: 'Server error during logout.' });
+  }
+};
+
+/**
+ * POST /api/admin/auth/setup-phone
+ * Headers: Authorization: Bearer <admin_pending token>
+ * Body: { idToken }
+ */
+exports.setupPhone = async (req, res) => {
+  try {
+    const { idToken } = req.body;
+    const ip = getIp(req);
+
+    if (!idToken) {
+      return res.status(400).json({ success: false, message: 'Firebase ID Token is required.' });
+    }
+
+    const authHeader = req.headers.authorization || '';
+    const pendingToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (!pendingToken) {
+      return res.status(401).json({ success: false, message: 'Missing authentication token.' });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(pendingToken, ADMIN_SECRET);
+    } catch {
+      return res.status(401).json({ success: false, message: 'Authentication token is invalid or expired.' });
+    }
+
+    if (decoded.role !== 'admin_pending') {
+      return res.status(403).json({ success: false, message: 'Invalid token stage.' });
+    }
+
+    // IP check removed — mobile clients frequently change IPs between login steps
+
+    const admin = await User.findById(decoded.id);
+    if (!admin || admin.role !== 'admin') {
+      return res.status(401).json({ success: false, message: 'Authentication failed.' });
+    }
+
+    let firebasePhone = '';
+    try {
+      const decodedFirebaseToken = await firebaseAdmin.auth().verifyIdToken(idToken);
+      firebasePhone = decodedFirebaseToken.phone_number;
+    } catch (error) {
+      console.error('[Firebase Verify Error]', error);
+      return res.status(401).json({ success: false, message: 'Invalid or expired Phone verification.' });
+    }
+
+    if (!firebasePhone) {
+      return res.status(400).json({ success: false, message: 'Firebase token did not contain a phone number.' });
+    }
+
+    // Save phone and enable 2FA
+    admin.phone = firebasePhone;
+    admin.twoFactorEnabled = true;
+    await admin.save();
+
+    // ── Issue full admin JWT ──────────────────────────────────
+    const sessionId = `${admin._id}-${Date.now()}`;
+    const fullToken = signAdminJwt(
+      {
+        id: admin._id,
+        role: 'admin',
+        sessionId
+      },
+      FULL_JWT_EXPIRE
+    );
+
+    // ── Seed inactivity timer ─────────────────────────────────────────
+    const lastActiveKey = `admin:session:lastActive:${admin._id}`;
+    try {
+      await redis.setex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
+    } catch (redisErr) {
+      console.error('[setupPhone] Redis setex failed:', redisErr.message);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `2FA setup complete. Welcome, ${admin.name}.`,
+      token: fullToken,
+      admin: {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        phone: admin.phone
+      }
+    });
+
+  } catch (err) {
+    console.error('[setupPhone] Error:', err);
+    return res.status(500).json({ success: false, message: 'Server error during phone setup.' });
   }
 };
 

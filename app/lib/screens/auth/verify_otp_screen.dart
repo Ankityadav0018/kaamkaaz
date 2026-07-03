@@ -123,7 +123,7 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen>
         final ok = await ref
             .read(authProvider.notifier)
             .login('demo@kaamkaaz.org', 'Demo@1234');
-        if (ok && mounted) {
+        if (ok['success'] == true && mounted) {
           context.go('/');
           return;
         }
@@ -133,7 +133,7 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen>
         final ok = await ref
             .read(authProvider.notifier)
             .login('recruiter.demo@kaamkaaz.org', 'Recruiter@1234');
-        if (ok && mounted) {
+        if (ok['success'] == true && mounted) {
           context.go('/');
           return;
         }
@@ -143,7 +143,7 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen>
         final ok = await ref
             .read(authProvider.notifier)
             .login('worker.demo@kaamkaaz.org', 'Worker@1234');
-        if (ok && mounted) {
+        if (ok['success'] == true && mounted) {
           context.go('/');
           return;
         }
