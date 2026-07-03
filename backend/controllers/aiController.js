@@ -53,7 +53,7 @@ Kaamkaaz is a hyperlocal daily wage job marketplace for blue-collar workers (Kaa
 The user is stuck or has a question. Look at the Current App Screen and their Role to understand what they are trying to do. Provide a short (1-3 sentences), highly actionable answer on what button to press, what to fill out next, or how a feature works based on the knowledge base. Be friendly and respectful (e.g., use "Bhaiya", "Didi", "Ji").`;
 
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
+      model: 'gemini-flash-latest',
       systemInstruction: systemPrompt
     });
     // Map history to Gemini format if provided
