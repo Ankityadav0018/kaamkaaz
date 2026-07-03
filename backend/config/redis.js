@@ -39,7 +39,6 @@ if (process.env.REDIS_URL) {
 // Global client for caching/rate-limiting
 const redisClient = new Redis({
   ...redisConfig,
-  commandTimeout: 3000,
   // Stop retrying after ~60 seconds — prevents infinite log spam when Redis is down
   retryStrategy: (times) => {
     if (times > 8) {
@@ -68,7 +67,27 @@ redisClient.on('error', (err) => {
   }
 });
 
+const withTimeout = (promise, ms = 2000) => {
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error('Redis timeout')), ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
+};
+
+const safeRedisGet = async (key) => {
+  if (redisClient.status !== 'ready') throw new Error('Redis not ready');
+  return withTimeout(redisClient.get(key));
+};
+
+const safeRedisSetex = async (key, ttl, val) => {
+  if (redisClient.status !== 'ready') throw new Error('Redis not ready');
+  return withTimeout(redisClient.setex(key, ttl, val));
+};
+
 module.exports = {
   redisClient,
-  redisConfig
+  redisConfig,
+  safeRedisGet,
+  safeRedisSetex
 };

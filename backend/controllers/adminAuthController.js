@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const speakeasy = require('speakeasy');
 const User = require('../models/User');
 const AdminAuditLog = require('../models/AdminAuditLog');
-const { redisClient: redis } = require('../config/redis');
+const { redisClient: redis, safeRedisGet, safeRedisSetex } = require('../config/redis');
 const adminMailer = require('../services/adminMailer');
 const firebaseAdmin = require('../config/firebase');
 
@@ -60,7 +60,7 @@ exports.adminLogin = async (req, res) => {
 
     // ── Check IP brute-force block (Layer 3 integration) ──────────────────────
     const ipFailKey = `admin:ip_fails:${ip}`;
-    const ipFails = await redis.get(ipFailKey);
+    const ipFails = await safeRedisGet(ipFailKey);
     if (parseInt(ipFails || '0', 10) >= 5) {
       return res.status(429).json({
         success: false,
@@ -80,7 +80,7 @@ exports.adminLogin = async (req, res) => {
 
     // ── Check account lockout (set by OTP failures) ───────────────────────────
     const lockKey = `admin:lock:${admin._id}`;
-    const isLocked = await redis.get(lockKey);
+    const isLocked = await safeRedisGet(lockKey);
     if (isLocked) {
       const ttl = await redis.ttl(lockKey);
       return res.status(403).json({
@@ -174,7 +174,7 @@ exports.adminVerifyOtp = async (req, res) => {
 
     // ── Check if token itself is blacklisted ──────────────────────────────────
     const blacklistKey = `admin:blacklist:${pendingToken}`;
-    if (await redis.get(blacklistKey)) {
+    if (await safeRedisGet(blacklistKey)) {
       return res.status(401).json({ success: false, message: 'Token has been revoked.' });
     }
 
@@ -188,7 +188,7 @@ exports.adminVerifyOtp = async (req, res) => {
 
     // ── Account lockout guard ─────────────────────────────────────────────────
     const lockKey = `admin:lock:${admin._id}`;
-    if (await redis.get(lockKey)) {
+    if (await safeRedisGet(lockKey)) {
       const ttl = await redis.ttl(lockKey);
       return res.status(403).json({
         success: false,
@@ -222,9 +222,9 @@ exports.adminVerifyOtp = async (req, res) => {
 
       if (attempts >= MAX_OTP_ATTEMPTS) {
         // Lock the account and blacklist the pending token
-        await redis.setex(lockKey, LOCK_DURATION_SEC, '1');
+        await safeRedisSetex(lockKey, LOCK_DURATION_SEC, '1');
         await redis.del(attemptsKey);
-        await redis.setex(blacklistKey, 15 * 60, '1');
+        await safeRedisSetex(blacklistKey, 15 * 60, '1');
 
         await adminMailer.sendLockoutAlert({
           to: admin.email,
@@ -248,7 +248,7 @@ exports.adminVerifyOtp = async (req, res) => {
     await redis.del(attemptsKey);
 
     // ── Blacklist the pending token (single-use) ──────────────────────────────
-    await redis.setex(blacklistKey, 15 * 60, '1');
+    await safeRedisSetex(blacklistKey, 15 * 60, '1');
 
     // ── Issue full admin JWT (Layer 2 complete) ──────────────────────────────
     const sessionId = `${admin._id}-${Date.now()}`;
@@ -264,7 +264,7 @@ exports.adminVerifyOtp = async (req, res) => {
     // ── Seed inactivity timer (Layer 5) ────────────────────────────────────
     const lastActiveKey = `admin:session:lastActive:${admin._id}`;
     try {
-      await redis.setex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
+      await safeRedisSetex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
     } catch (redisErr) {
       console.error('[adminVerifyOtp] Redis setex failed:', redisErr.message);
     }
@@ -300,7 +300,7 @@ exports.adminLogout = async (req, res) => {
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
 
     if (token) {
-      await redis.setex(`admin:blacklist:${token}`, 24 * 60 * 60, '1');
+      await safeRedisSetex(`admin:blacklist:${token}`, 24 * 60 * 60, '1');
     }
     
     await redis.del(`admin:session:lastActive:${adminId}`);
@@ -389,7 +389,7 @@ exports.setupPhone = async (req, res) => {
     // ── Seed inactivity timer ─────────────────────────────────────────
     const lastActiveKey = `admin:session:lastActive:${admin._id}`;
     try {
-      await redis.setex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
+      await safeRedisSetex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
     } catch (redisErr) {
       console.error('[setupPhone] Redis setex failed:', redisErr.message);
     }

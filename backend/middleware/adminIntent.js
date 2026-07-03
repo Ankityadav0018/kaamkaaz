@@ -108,8 +108,13 @@ const adminIntent = async (req, res, next) => {
     }
 
     // Co-approver token must not be blacklisted
-    const { redisClient: redis } = require('../config/redis');
-    const coBlacklisted = await redis.get(`admin:blacklist:${coApprovalHeader}`);
+    const { safeRedisGet } = require('../config/redis');
+    let coBlacklisted = false;
+    try {
+      coBlacklisted = await safeRedisGet(`admin:blacklist:${coApprovalHeader}`);
+    } catch (redisErr) {
+      console.warn('[adminIntent] Redis co-approval blacklist check failed:', redisErr.message);
+    }
     if (coBlacklisted) {
       return res.status(403).json({ success: false, message: 'Co-approval token has been revoked.' });
     }

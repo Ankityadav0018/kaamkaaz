@@ -14,7 +14,7 @@
 
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { redisClient: redis } = require('../config/redis');
+const { redisClient: redis, safeRedisGet, safeRedisSetex } = require('../config/redis');
 
 const ADMIN_SECRET     = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET;
 const INACTIVITY_SEC   = 8 * 60 * 60; // 8 hours
@@ -29,7 +29,7 @@ const blacklistToken = async (token, decoded) => {
     const ttl = decoded?.exp
       ? Math.max(decoded.exp - Math.floor(Date.now() / 1000), 1)
       : INACTIVITY_SEC;
-    await redis.setex(`admin:blacklist:${token}`, ttl, '1');
+    await safeRedisSetex(`admin:blacklist:${token}`, ttl, '1');
   } catch (redisErr) {
     console.error('[adminSession] Redis blacklist error:', redisErr.message);
   }
@@ -70,7 +70,7 @@ const adminSession = async (req, res, next) => {
 
   // ── 4. Token blacklist check ──────────────────────────────────────────────
   try {
-    const isBlacklisted = await redis.get(`admin:blacklist:${token}`);
+    const isBlacklisted = await safeRedisGet(`admin:blacklist:${token}`);
     if (isBlacklisted) {
       return res.status(401).json({ success: false, message: 'Session has been revoked. Please log in again.' });
     }
@@ -92,14 +92,14 @@ const adminSession = async (req, res, next) => {
   // This prevents permanent lockout after a Redis restart on Render.
   const lastActiveKey = `admin:session:lastActive:${admin._id}`;
   try {
-    const lastActive = await redis.get(lastActiveKey);
+    const lastActive = await safeRedisGet(lastActiveKey);
     if (!lastActive) {
       // Key gone but JWT is valid — re-seed the inactivity window
       console.warn(`[adminSession] Re-seeding lastActive for admin ${admin._id} (Redis key was missing)`);
-      await redis.setex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
+      await safeRedisSetex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
     } else {
       // Refresh the rolling window
-      await redis.setex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
+      await safeRedisSetex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
     }
   } catch (redisErr) {
     // Redis unavailable — allow request through; JWT is the primary auth

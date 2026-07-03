@@ -43,10 +43,15 @@ const getHourInTimezone = (timezone) => {
  * Returns true when confirmed, false on timeout.
  */
 const waitForIpConfirmation = async (confirmKey, timeoutMs) => {
+  const { safeRedisGet } = require('../config/redis');
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
-    const confirmed = await redis.get(`${confirmKey}:confirmed`);
-    if (confirmed === '1') return true;
+    try {
+      const confirmed = await safeRedisGet(`${confirmKey}:confirmed`);
+      if (confirmed === '1') return true;
+    } catch (e) {
+      // Ignore redis errors during polling
+    }
     await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS));
   }
   return false;
