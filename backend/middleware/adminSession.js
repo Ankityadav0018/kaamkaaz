@@ -62,9 +62,9 @@ const adminSession = async (req, res, next) => {
 
   // ── 3. Must be a fully promoted admin token, NOT admin_pending ────────────
   if (decoded.role !== 'admin') {
-    return res.status(403).json({
+    return res.status(401).json({
       success: false,
-      message: 'Additional verification required. Complete the OTP step first.'
+      message: 'Additional verification required. Please log in again.'
     });
   }
 
