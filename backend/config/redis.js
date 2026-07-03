@@ -39,6 +39,7 @@ if (process.env.REDIS_URL) {
 // Global client for caching/rate-limiting
 const redisClient = new Redis({
   ...redisConfig,
+  commandTimeout: 3000,
   // Stop retrying after ~60 seconds — prevents infinite log spam when Redis is down
   retryStrategy: (times) => {
     if (times > 8) {
