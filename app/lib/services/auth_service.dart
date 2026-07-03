@@ -101,8 +101,28 @@ class AuthService {
       };
       final res = await ApiService.post(ApiConfig.login, body, auth: false);
       if (res['success'] == true && res['data'] != null) {
+        final user = UserModel.fromJson(res['data']['user']);
+        // Save the regular token first — needed for socket, getMe, notifications etc.
         await ApiService.saveToken(res['data']['token'], persist: true);
-        return {'success': true, 'user': UserModel.fromJson(res['data']['user'])};
+
+        if (user.role == 'admin' && user.email.isNotEmpty) {
+          // Admin must go through 2FA even if they logged in via phone.
+          // Their email is known from the login response.
+          final adminRes = await adminLogin(user.email, password);
+          if (adminRes['success'] == true) {
+            return {
+              'success': true,
+              'requireAdminOtp': adminRes['requireAdminOtp'] == true,
+              'requireSetup':    adminRes['requireSetup']    == true,
+              'otpMethod':       adminRes['otpMethod'],
+              'phone':           adminRes['phone'],
+            };
+          }
+          // Admin 2FA failed (wrong email/password combo on admin endpoint),
+          // but regular token is still valid — adminSession.js accepts it too.
+        }
+
+        return {'success': true, 'user': user};
       }
       return {'success': false, 'message': res['message'] ?? 'Login failed'};
     }
@@ -137,8 +157,8 @@ class AuthService {
     try {
       final res = await ApiService.post(ApiConfig.adminSetupPhone, {'idToken': idToken}, auth: true);
       if (res['success'] == true && res['token'] != null) {
-        // Save the full permanent token
-        await ApiService.saveToken(res['token'], persist: true);
+        // Save admin token to its own storage key (separate from regular user token)
+        await ApiService.saveAdminToken(res['token']);
         if (res['admin'] != null) {
           final userJson = Map<String, dynamic>.from(res['admin']);
           userJson['role'] = 'admin'; // Ensure role is injected
@@ -155,7 +175,9 @@ class AuthService {
     try {
       final res = await ApiService.post(ApiConfig.adminVerifyOtp, {'idToken': idToken}, auth: true);
       if (res['success'] == true && res['token'] != null) {
-        // Save the full permanent token
+        // Save admin token to its own storage key (separate from regular user token)
+        await ApiService.saveAdminToken(res['token']);
+        // Also save it as the regular token so that app restarts can initialize the user correctly
         await ApiService.saveToken(res['token'], persist: true);
         if (res['admin'] != null) {
           final userJson = Map<String, dynamic>.from(res['admin']);
@@ -275,6 +297,7 @@ class AuthService {
       await Supabase.instance.client.auth.signOut();
     } catch (_) {}
     await ApiService.deleteToken();
+    await ApiService.deleteAdminToken(); // always clear admin token too
   }
 
   static Future<Map<String, dynamic>> updateKyc({

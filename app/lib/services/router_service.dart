@@ -77,7 +77,7 @@ final sharedPrefsProvider = Provider<SharedPreferences?>((ref) => null);
 final routerProvider = Provider<GoRouter>((ref) {
   final routerNotifier = ref.read(routerNotifierProvider);
 
-  // Global unauthorized handler
+  // Global unauthorized handler — only for non-admin routes
   ApiService.onUnauthorized = () {
     final authState = ref.read(authProvider);
     if (!authState.isInitialized || authState.user == null) {
@@ -91,6 +91,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         behavior: SnackBarBehavior.floating,
       ),
     );
+  };
+
+  // Admin session expired — don't log the user out, just show a re-auth prompt
+  ApiService.onAdminSessionExpired = () {
+    final authState = ref.read(authProvider);
+    if (!authState.isInitialized || authState.user == null) return;
+    AppKeys.messengerKey.currentState?.showSnackBar(
+      const SnackBar(
+        content: Text('🔐 Admin session expired. Please log in as admin again.'),
+        backgroundColor: Colors.deepOrange,
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 5),
+      ),
+    );
+    // Navigate to admin login instead of full sign-out
+    AppKeys.rootNavigatorKey.currentContext?.go('/auth/login');
   };
 
   return GoRouter(

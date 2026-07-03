@@ -51,6 +51,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         final AuthChangeEvent event = data.event;
         if (event == AuthChangeEvent.signedOut) {
           await ApiService.deleteToken();
+          await ApiService.deleteAdminToken(); // clear admin token too
           state = state.copyWith(clearUser: true);
           SocketService().disconnect();
         } else if (event == AuthChangeEvent.passwordRecovery) {

@@ -81,6 +81,7 @@ class _AdminHomeScreenState extends ConsumerState<AdminHomeScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _loading = false);
+        LoggerService.e('Admin Dashboard Load Error: $e');
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

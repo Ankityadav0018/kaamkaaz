@@ -16,7 +16,9 @@ class ApiService {
     ),
   );
   static const _tokenKey = 'kaamkaaz_auth_token';
+  static const _adminTokenKey = 'kaamkaaz_admin_token';
   static Function? onUnauthorized;
+  static Function? onAdminSessionExpired; // separate handler for admin 401s
 
   // In-memory token for session-only logins (rememberMe = false)
   static String? _memoryToken;
@@ -54,6 +56,24 @@ class ApiService {
     await _storage.delete(key: _tokenKey);
   }
 
+  // ── Admin token (separate key, never overwritten by regular login) ──────────
+  static Future<void> saveAdminToken(String token) async {
+    await _storage.write(key: _adminTokenKey, value: token);
+  }
+
+  static Future<String?> getAdminToken() async {
+    try {
+      return await _storage.read(key: _adminTokenKey);
+    } catch (e) {
+      LoggerService.e('Secure storage admin token read error: $e');
+      return null;
+    }
+  }
+
+  static Future<void> deleteAdminToken() async {
+    await _storage.delete(key: _adminTokenKey);
+  }
+
   static Future<void> clearAllData() async {
     _memoryToken = null;
     await _storage.deleteAll();
@@ -61,10 +81,17 @@ class ApiService {
     await prefs.clear();
   }
 
-  static Future<Map<String, String>> _headers({bool auth = true}) async {
+  // Build headers — admin routes automatically use the admin token when available
+  static Future<Map<String, String>> _headers({bool auth = true, bool adminAuth = false}) async {
     final headers = <String, String>{'Content-Type': 'application/json'};
     if (auth) {
-      final token = await getToken();
+      String? token;
+      if (adminAuth) {
+        // Prefer admin token; fall back to regular token
+        token = await getAdminToken() ?? await getToken();
+      } else {
+        token = await getToken();
+      }
       if (token != null) headers['Authorization'] = 'Bearer $token';
     }
     return headers;
@@ -74,6 +101,7 @@ class ApiService {
   static Future<Map<String, dynamic>> _requestWithRetry(
     Future<http.Response> Function() requestFn, {
     int retries = 0,
+    bool isAdminRoute = false,
   }) async {
     try {
       final response = await requestFn().timeout(const Duration(seconds: 60));
@@ -83,16 +111,16 @@ class ApiService {
         LoggerService.w(
             '⚠️ Server busy (${response.statusCode}). Retrying ${retries + 1}/$maxRetries...');
         await Future.delayed(retryDelay * (retries + 1));
-        return _requestWithRetry(requestFn, retries: retries + 1);
+        return _requestWithRetry(requestFn, retries: retries + 1, isAdminRoute: isAdminRoute);
       }
 
-      return _handleResponse(response);
+      return _handleResponse(response, isAdminRoute: isAdminRoute);
     } on SocketException {
       if (retries < maxRetries) {
         LoggerService.w(
             '📶 Connection lost. Retrying ${retries + 1}/$maxRetries...');
         await Future.delayed(retryDelay * (retries + 1));
-        return _requestWithRetry(requestFn, retries: retries + 1);
+        return _requestWithRetry(requestFn, retries: retries + 1, isAdminRoute: isAdminRoute);
       }
       throw ErrorHandler.getMessage('No internet connection.');
     } on TimeoutException {
@@ -100,7 +128,7 @@ class ApiService {
         LoggerService.w(
             '⏳ Request timed out. Retrying ${retries + 1}/$maxRetries...');
         await Future.delayed(retryDelay * (retries + 1));
-        return _requestWithRetry(requestFn, retries: retries + 1);
+        return _requestWithRetry(requestFn, retries: retries + 1, isAdminRoute: isAdminRoute);
       }
       throw ErrorHandler.getMessage('TimeoutException: Server is taking too long');
     } catch (e) {
@@ -111,49 +139,54 @@ class ApiService {
 
   // GET
   static Future<Map<String, dynamic>> get(String endpoint) async {
+    final isAdminRoute = endpoint.startsWith('/admin/');
     return _requestWithRetry(() async => http.get(
           Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-          headers: await _headers(),
-        ));
+          headers: await _headers(adminAuth: isAdminRoute),
+        ), isAdminRoute: isAdminRoute);
   }
 
   // POST
   static Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> body,
       {bool auth = true}) async {
+    final isAdminRoute = endpoint.startsWith('/admin/');
     return _requestWithRetry(() async => http.post(
           Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-          headers: await _headers(auth: auth),
+          headers: await _headers(auth: auth, adminAuth: isAdminRoute),
           body: jsonEncode(body),
-        ));
+        ), isAdminRoute: isAdminRoute);
   }
 
   // PUT
   static Future<Map<String, dynamic>> put(
       String endpoint, Map<String, dynamic> body) async {
+    final isAdminRoute = endpoint.startsWith('/admin/');
     return _requestWithRetry(() async => http.put(
           Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-          headers: await _headers(),
+          headers: await _headers(adminAuth: isAdminRoute),
           body: jsonEncode(body),
-        ));
+        ), isAdminRoute: isAdminRoute);
   }
 
   // PATCH
   static Future<Map<String, dynamic>> patch(
       String endpoint, Map<String, dynamic> body) async {
+    final isAdminRoute = endpoint.startsWith('/admin/');
     return _requestWithRetry(() async => http.patch(
           Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-          headers: await _headers(),
+          headers: await _headers(adminAuth: isAdminRoute),
           body: jsonEncode(body),
-        ));
+        ), isAdminRoute: isAdminRoute);
   }
 
   // DELETE
   static Future<Map<String, dynamic>> delete(String endpoint) async {
+    final isAdminRoute = endpoint.startsWith('/admin/');
     return _requestWithRetry(() async => http.delete(
           Uri.parse('${ApiConfig.baseUrl}$endpoint'),
-          headers: await _headers(),
-        ));
+          headers: await _headers(adminAuth: isAdminRoute),
+        ), isAdminRoute: isAdminRoute);
   }
 
   // MULTIPART
@@ -229,7 +262,7 @@ class ApiService {
     }
   }
 
-  static Map<String, dynamic> _handleResponse(http.Response response) {
+  static Map<String, dynamic> _handleResponse(http.Response response, {bool isAdminRoute = false}) {
     LoggerService.i(
         '🌐 API Response: ${response.request?.method} ${response.request?.url} -> ${response.statusCode}');
 
@@ -240,7 +273,13 @@ class ApiService {
            response.request!.url.path.contains('/register'));
 
       if (!isLoginAttempt) {
-        if (onUnauthorized != null) onUnauthorized!();
+        if (isAdminRoute) {
+          // Admin session expired — don't log the whole user out;
+          // let the admin screen show a re-authenticate dialog instead.
+          if (onAdminSessionExpired != null) onAdminSessionExpired!();
+        } else {
+          if (onUnauthorized != null) onUnauthorized!();
+        }
         throw 'error_generic';
       }
       // If it is a login attempt, let it fall through to parse the specific error message from the backend
