@@ -76,52 +76,11 @@ const adminAnomaly = async (req, res, next) => {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // (b) Unknown IP check
+  // (b) Unknown IP check (Disabled for Mobile)
   // ─────────────────────────────────────────────────────────────────────────
-  const knownIps   = admin.knownIps || [];
-  const isKnownIp  = knownIps.includes(ip);
-
-  if (!isKnownIp) {
-    console.warn(`[adminAnomaly] Unknown IP ${ip} for admin ${admin._id}. Sending confirmation email.`);
-
-    // Generate a secure confirmation token and store it in Redis
-    const confirmToken = crypto.randomBytes(32).toString('hex');
-    const confirmKey   = `admin:ip_confirm:${confirmToken}`;
-
-    // Store state: 'pending'
-    await redis.setex(confirmKey, CONFIRMATION_TOKEN_SEC, 'pending');
-
-    // Build the confirm URL — the admin clicks this in their email
-    const confirmUrl = `${process.env.SERVER_URL || 'http://localhost:5005'}/api/admin/confirm-ip?token=${confirmToken}&adminId=${admin._id}&ip=${encodeURIComponent(ip)}`;
-
-    // Send confirmation email (non-blocking start)
-    adminMailer.sendIpConfirmationEmail({
-      to: admin.email,
-      adminName: admin.name,
-      ip,
-      confirmUrl
-    }).catch(err => console.error('[adminAnomaly] IP confirm email error:', err));
-
-    // Hold request up to 2 minutes waiting for confirmation
-    const confirmed = await waitForIpConfirmation(confirmKey, CONFIRMATION_WAIT_MS);
-
-    if (!confirmed) {
-      return res.status(401).json({
-        success: false,
-        message: 'Login from unrecognized device. Confirmation not received in time. Access denied.'
-      });
-    }
-
-    // ── Confirmed: add IP to admin's knownIps list ─────────────────────────
-    try {
-      const User = require('../models/User');
-      await User.findByIdAndUpdate(admin._id, {
-        $addToSet: { knownIps: ip }
-      });
-    } catch (err) {
-      console.error('[adminAnomaly] Failed to persist known IP:', err);
-    }
-  }
+  // Mobile IPs change frequently between WiFi and 4G/5G. We no longer block 
+  // or hold the request here because it causes the app to hang.
+  // In the future, a push notification based device approval could be used.
 
   next();
 };
