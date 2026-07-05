@@ -47,26 +47,31 @@ class _AdminOtpScreenState extends ConsumerState<AdminOtpScreen> {
       formattedPhone = '+91$formattedPhone';
     }
 
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: formattedPhone,
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await _signInWithCredential(credential);
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        setState(() => _isLoading = false);
-        _showSnack(e.message ?? 'SMS Failed', isError: true);
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        setState(() {
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: formattedPhone,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await _signInWithCredential(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          setState(() => _isLoading = false);
+          _showSnack(e.message ?? 'SMS Failed', isError: true);
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          setState(() {
+            _verificationId = verificationId;
+            _isLoading = false;
+          });
+          _showSnack('OTP sent to ${widget.phone}');
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
           _verificationId = verificationId;
-          _isLoading = false;
-        });
-        _showSnack('OTP sent to ${widget.phone}');
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        _verificationId = verificationId;
-      },
-    );
+        },
+      );
+    } catch (e) {
+      setState(() => _isLoading = false);
+      _showSnack('Error: ${e.toString()}', isError: true);
+    }
   }
 
   Future<void> _verifyCode() async {

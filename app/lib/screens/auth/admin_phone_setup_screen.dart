@@ -49,28 +49,33 @@ class _AdminPhoneSetupScreenState extends ConsumerState<AdminPhoneSetupScreen> {
       formattedPhone = '+91$formattedPhone'; // default to India
     }
 
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: formattedPhone,
-      verificationCompleted: (PhoneAuthCredential credential) async {
-         // Auto-resolution (rare on iOS, common on Android)
-         await _signInWithCredential(credential);
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        setState(() => _isLoading = false);
-        _showSnack(e.message ?? 'Verification failed', isError: true);
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        setState(() {
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: formattedPhone,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+           // Auto-resolution (rare on iOS, common on Android)
+           await _signInWithCredential(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          setState(() => _isLoading = false);
+          _showSnack(e.message ?? 'Verification failed', isError: true);
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          setState(() {
+            _verificationId = verificationId;
+            _codeSent = true;
+            _isLoading = false;
+          });
+          _showSnack('OTP sent via SMS');
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
           _verificationId = verificationId;
-          _codeSent = true;
-          _isLoading = false;
-        });
-        _showSnack('OTP sent via SMS');
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        _verificationId = verificationId;
-      },
-    );
+        },
+      );
+    } catch (e) {
+      setState(() => _isLoading = false);
+      _showSnack('Error: ${e.toString()}', isError: true);
+    }
   }
 
   Future<void> _verifyCode() async {
