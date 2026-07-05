@@ -130,53 +130,55 @@ class _AdminOtpScreenState extends ConsumerState<AdminOtpScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Admin Security Verification')),
       body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: Card(
-            margin: const EdgeInsets.all(20),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Icon(Icons.shield, size: 64, color: AppColors.primary),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Enter 2FA Code',
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'An SMS code was sent to ${widget.phone}.',
-                    style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  TextField(
-                    controller: _otpCtrl,
-                    decoration: const InputDecoration(
-                      labelText: '6-digit OTP',
-                      border: OutlineInputBorder(),
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: Card(
+              margin: const EdgeInsets.all(20),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Icon(Icons.shield, size: 64, color: AppColors.primary),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Enter 2FA Code',
+                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
                     ),
-                    keyboardType: TextInputType.number,
-                    enabled: !_isLoading,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _verifyCode,
-                    style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
-                    child: _isLoading
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Text('Verify Access'),
-                  ),
-                  TextButton(
-                    onPressed: _isLoading ? null : _triggerOtp,
-                    child: const Text('Resend Code'),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      'An SMS code was sent to ${widget.phone}.',
+                      style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    TextField(
+                      controller: _otpCtrl,
+                      decoration: const InputDecoration(
+                        labelText: '6-digit OTP',
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                      enabled: !_isLoading,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _verifyCode,
+                      style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
+                      child: _isLoading
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Text('Verify Access'),
+                    ),
+                    TextButton(
+                      onPressed: _isLoading ? null : _triggerOtp,
+                      child: const Text('Resend Code'),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
