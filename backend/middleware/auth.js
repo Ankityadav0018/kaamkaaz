@@ -11,7 +11,15 @@ exports.protect = async (req, res, next) => {
     return res.status(401).json({ success: false, message: 'Not authorized, no token' });
   }
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      // Fallback: If token was signed as an Admin JWT, it will use ADMIN_JWT_SECRET
+      const adminSecret = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET;
+      decoded = jwt.verify(token, adminSecret);
+    }
+    
     req.user = await User.findById(decoded.id);
     if (!req.user) {
       return res.status(401).json({ success: false, message: 'User not found' });
@@ -35,7 +43,13 @@ exports.optionalProtect = async (req, res, next) => {
   if (!token) return next();
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      const adminSecret = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET;
+      decoded = jwt.verify(token, adminSecret);
+    }
     req.user = await User.findById(decoded.id);
   } catch (err) {
     // Ignore error for optional auth
