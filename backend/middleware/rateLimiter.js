@@ -52,8 +52,8 @@ exports.authSlowDown = slowDown({
   windowMs: 15 * 60 * 1000,
   delayAfter: 3,
   delayMs: (used) => (used - 3) * 500, // +500ms per extra request after 3rd
-  store: makeRedisStore('slow'),
-  passOnStoreError: true,
+  // Intentionally using memory store here instead of Redis because express-slow-down's
+  // internal express-rate-limit dependency crashes the server on startup if Redis is down.
 });
 
 // ─── 4. Upload Limiter — 10 uploads / hour per user (or IP if unauthed) ──────
