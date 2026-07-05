@@ -136,6 +136,8 @@ class AuthService {
     try {
       final res = await ApiService.post(ApiConfig.adminLogin, body, auth: false);
       if (res['success'] == true && res['token'] != null) {
+        // Clear any old full admin token so it doesn't interfere with OTP stage
+        await ApiService.deleteAdminToken();
         // Temporarily save the pending token so ApiService can use it for verify-otp / setup-phone
         await ApiService.saveToken(res['token'], persist: false); 
         
