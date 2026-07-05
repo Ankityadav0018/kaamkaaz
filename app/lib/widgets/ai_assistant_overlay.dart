@@ -221,6 +221,7 @@ class _AIAssistantOverlayState extends ConsumerState<AIAssistantOverlay> {
               children: [
                 Expanded(
                   child: VoiceTextField(
+                    showMic: true,
                     controller: _msgCtrl,
                     textInputAction: TextInputAction.send,
                     onFieldSubmitted: (_) => _sendMessage(),
