@@ -360,7 +360,7 @@ exports.setupPhone = async (req, res) => {
     let firebasePhone = '';
     try {
       const decodedFirebaseToken = await firebaseAdmin.auth().verifyIdToken(idToken);
-      firebasePhone = decodedFirebaseToken.phone_number;
+      firebasePhone = decodedFirebaseToken.phone_number.replace('+91', '').replace(/\s/g, '').trim();
     } catch (error) {
       console.error('[Firebase Verify Error]', error);
       return res.status(401).json({ success: false, message: 'Invalid or expired Phone verification.' });
