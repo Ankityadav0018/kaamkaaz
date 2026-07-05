@@ -111,8 +111,8 @@ class _AdminOtpScreenState extends ConsumerState<AdminOtpScreen> {
       
       if (result['success'] == true) {
         if (!mounted) return;
-        _showSnack('Admin verified successfully!');
-        context.go('/home');
+        _showSnack('Admin verified successfully!', isError: false);
+        context.go('/');
       } else {
         if (!mounted) return;
         setState(() => _isLoading = false);

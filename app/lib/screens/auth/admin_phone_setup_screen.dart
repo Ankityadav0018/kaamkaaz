@@ -116,8 +116,8 @@ class _AdminPhoneSetupScreenState extends ConsumerState<AdminPhoneSetupScreen> {
       
       if (result['success'] == true) {
         if (!mounted) return;
-        _showSnack('2FA Setup Complete!');
-        context.go('/home'); // Auth flow will route correctly
+        _showSnack('Phone setup successful!', isError: false);
+        context.go('/'); // Auth flow will route correctly
       } else {
         if (!mounted) return;
         setState(() => _isLoading = false);
