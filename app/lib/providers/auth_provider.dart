@@ -159,7 +159,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     try {
       final result = await AuthService.login(identifier, password, rememberMe: rememberMe);
       if (result['success'] == true) {
-        if (result['requireAdminOtp'] == true) {
+        if (result['requireAdminOtp'] == true || result['requireSetup'] == true) {
           state = state.copyWith(isLoading: false);
           return result;
         }

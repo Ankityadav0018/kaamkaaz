@@ -89,6 +89,7 @@ class ApiService {
       if (adminAuth) {
         // Prefer admin token; fall back to regular token
         token = await getAdminToken() ?? await getToken();
+        headers['x-admin-intent'] = 'App Navigation';
       } else {
         token = await getToken();
       }
