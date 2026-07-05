@@ -17,7 +17,10 @@ const getIp = (req) => {
 
 // ─── Shared Redis store factory ───────────────────────────────────────────────
 const makeRedisStore = (prefix) => new RedisStore({
-  sendCommand: (...args) => redisClient.call(...args),
+  sendCommand: async (...args) => {
+    if (redisClient.status !== 'ready') throw new Error('Redis not ready for rate limiter');
+    return redisClient.call(...args);
+  },
   prefix: `rl:${prefix}:`,
 });
 
@@ -28,6 +31,7 @@ exports.globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: makeRedisStore('global'),
+  passOnStoreError: true,
   message: { success: false, message: 'Too many requests from this IP. Please try again later.' }
 });
 
@@ -38,6 +42,7 @@ exports.authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: makeRedisStore('auth'),
+  passOnStoreError: true,
   skipSuccessfulRequests: true, // Only count failures
   message: { success: false, message: 'Too many authentication attempts. Please try again in 15 minutes.' }
 });
@@ -48,6 +53,7 @@ exports.authSlowDown = slowDown({
   delayAfter: 3,
   delayMs: (used) => (used - 3) * 500, // +500ms per extra request after 3rd
   store: makeRedisStore('slow'),
+  passOnStoreError: true,
 });
 
 // ─── 4. Upload Limiter — 10 uploads / hour per user (or IP if unauthed) ──────
@@ -56,6 +62,7 @@ exports.uploadLimiter = rateLimit({
   max: 10,
   keyGenerator: (req) => req.user ? `user:${req.user.id}` : getIp(req),
   store: makeRedisStore('upload'),
+  passOnStoreError: true,
   message: { success: false, message: 'Upload limit reached. Maximum 10 uploads per hour.' }
 });
 
@@ -65,6 +72,7 @@ exports.recruiterJobPostLimiter = rateLimit({
   max: 20,
   keyGenerator: (req) => req.user ? `rec_post:${req.user.id}` : getIp(req),
   store: makeRedisStore('rec_post'),
+  passOnStoreError: true,
   message: { success: false, message: 'Daily job post limit reached (20 per day). Try again tomorrow.' }
 });
 
@@ -74,6 +82,7 @@ exports.recruiterProfileViewLimiter = rateLimit({
   max: 100,
   keyGenerator: (req) => req.user ? `rec_view:${req.user.id}` : getIp(req),
   store: makeRedisStore('rec_view'),
+  passOnStoreError: true,
   message: { success: false, message: 'Profile view limit reached (100 per hour). Please slow down.' }
 });
 
@@ -83,5 +92,6 @@ exports.apiLimiter = rateLimit({
   max: 300,
   keyGenerator: (req) => req.user ? req.user.id.toString() : getIp(req),
   store: makeRedisStore('api'),
+  passOnStoreError: true,
   message: { success: false, message: 'API rate limit exceeded.' }
 });
