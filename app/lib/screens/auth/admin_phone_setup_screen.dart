@@ -130,8 +130,9 @@ class _AdminPhoneSetupScreenState extends ConsumerState<AdminPhoneSetupScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Setup Admin 2FA')),
       body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
           child: Card(
             margin: const EdgeInsets.all(20),
             child: Padding(
@@ -199,6 +200,7 @@ class _AdminPhoneSetupScreenState extends ConsumerState<AdminPhoneSetupScreen> {
                   ],
                 ],
               ),
+            ),
             ),
           ),
         ),

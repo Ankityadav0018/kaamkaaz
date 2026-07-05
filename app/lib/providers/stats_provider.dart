@@ -5,8 +5,11 @@ import '../utils/api_config.dart';
 // Analytics stats provider - used only in Admin Analytics screen
 final analyticsStatsProvider =
     StreamProvider.autoDispose.family<Map<String, dynamic>, int>((ref, days) async* {
+  bool isDisposed = false;
+  ref.onDispose(() => isDisposed = true);
+
   // Poll every 10 seconds for real-time updates
-  while (true) {
+  while (!isDisposed) {
     try {
       final res = await ApiService.get('${ApiConfig.adminAnalytics}?days=$days');
       if (res['success'] == true) {
@@ -15,6 +18,7 @@ final analyticsStatsProvider =
     } catch (e) {
       // Yield previous data or ignore to avoid flickering on transient errors
     }
+    if (isDisposed) break;
     await Future.delayed(const Duration(seconds: 10));
   }
 });
