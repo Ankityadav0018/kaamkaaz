@@ -16,8 +16,7 @@ LANGUAGES = {
     'te': 'te',
     'kn': 'kn',
     'ml': 'ml',
-    'or': 'or',
-    'ur': 'ur',
+    'or': 'or'
 }
 
 NEW_KEYS = {

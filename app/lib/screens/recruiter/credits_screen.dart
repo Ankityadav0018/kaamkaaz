@@ -659,12 +659,15 @@ class _CreditsScreenState extends State<CreditsScreen> {
                       children: [
                         Row(
                           children: [
-                            Text(
-                              pack.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 15,
-                                color: AppColors.textDark,
+                            Flexible(
+                              child: Text(
+                                pack.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 15,
+                                  color: AppColors.textDark,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             if (isStandard) ...[

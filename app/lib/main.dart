@@ -148,7 +148,6 @@ Future<void> main() async {
           Locale('kn'),
           Locale('ml'),
           Locale('or'),
-          Locale('ur'),
         ],
         path: 'assets/languages',
         startLocale: Locale(langCode),

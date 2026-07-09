@@ -10,7 +10,6 @@ const localeMap = {
   kn: 'Kannada',
   ml: 'Malayalam',
   or: 'Odia',
-  ur: 'Urdu',
   pa: 'Punjabi',
   mr: 'Marathi',
   gu: 'Gujarati',

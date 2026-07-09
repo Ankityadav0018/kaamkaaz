@@ -80,11 +80,6 @@ class LanguageSelectionScreen extends ConsumerWidget {
         'nativeName': 'ଓଡ଼ିଆ',
         'displayName': 'Odia',
       },
-      {
-        'locale': const Locale('ur'),
-        'nativeName': 'اردو',
-        'displayName': 'Urdu',
-      },
     ];
 
     return Scaffold(

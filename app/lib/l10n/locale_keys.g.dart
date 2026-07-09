@@ -71,8 +71,7 @@ abstract class  LocaleKeys {
   static const referrals = 'referrals';
   static const referAndEarn = 'referAndEarn';
   static const totalReferred = 'totalReferred';
-  static const walletBalance = 'walletBalance'; // maps to 'Referral Earnings' in language files
-  static const referralEarnings = 'referralEarnings';
+  static const walletBalance = 'walletBalance';
   static const yourReferralCode = 'yourReferralCode';
   static const copyCode = 'copyCode';
   static const shareOnWhatsapp = 'shareOnWhatsapp';
@@ -1110,27 +1109,27 @@ abstract class  LocaleKeys {
   static const aiError = 'aiError';
   static const aiClose = 'aiClose';
   static const appLockPin = 'appLockPin';
-  // Credits / Subscription system (replaces wallet top-up)
-  static const myCredits = 'myCredits';
-  static const myWallet = 'myWallet'; // kept for compat — maps to 'My Credits'
-  static const availableCredits = 'creditsAvailable';
-  static const availableBalance = 'availableBalance'; // kept for compat
-  static const buyCredits = 'buyCredits';
-  static const addMoney = 'addMoney'; // kept for compat — maps to 'Buy Credits'
-  static const creditPackPurchase = 'creditPackPurchase';
-  static const walletTopup = 'walletTopup'; // kept for compat — maps to 'Credit Pack Purchase'
-  static const creditPurchaseSuccess = 'creditPurchaseSuccess';
-  static const topupSuccessUpdated = 'topupSuccessUpdated'; // compat
-  static const creditPurchaseProcessing = 'creditPurchaseProcessing';
-  static const topupSuccessProcessing = 'topupSuccessProcessing'; // compat
-  static const creditPurchaseFailed = 'creditPurchaseFailed';
-  static const topupFailed = 'topupFailed'; // compat
-  static const failedToLoadCredits = 'failedToLoadCredits';
-  static const failedToLoadWalletData = 'failedToLoadWalletData'; // compat
-  static const closedLoopCredits = 'closedLoopCredits';
-  static const secureWallet = 'secureWallet'; // compat
-  static const buyNow = 'buyNow';
+  static const myWallet = 'myWallet';
+  static const availableBalance = 'availableBalance';
+  static const addMoney = 'addMoney';
+  static const topupSuccessUpdated = 'topupSuccessUpdated';
+  static const topupSuccessProcessing = 'topupSuccessProcessing';
+  static const topupFailed = 'topupFailed';
+  static const failedToLoadWalletData = 'failedToLoadWalletData';
+  static const walletTopup = 'walletTopup';
   static const deduction = 'deduction';
   static const bal = 'bal';
+  static const secureWallet = 'secureWallet';
+  static const myCredits = 'myCredits';
+  static const buyCredits = 'buyCredits';
+  static const creditPackPurchase = 'creditPackPurchase';
+  static const creditPurchaseSuccess = 'creditPurchaseSuccess';
+  static const creditPurchaseProcessing = 'creditPurchaseProcessing';
+  static const creditPurchaseFailed = 'creditPurchaseFailed';
+  static const failedToLoadCredits = 'failedToLoadCredits';
+  static const closedLoopCredits = 'closedLoopCredits';
+  static const creditsAvailable = 'creditsAvailable';
+  static const buyNow = 'buyNow';
+  static const referralEarnings = 'referralEarnings';
 
 }

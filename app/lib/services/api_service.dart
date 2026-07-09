@@ -289,6 +289,12 @@ class ApiService {
     try {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       if (response.statusCode >= 400) {
+        if (body['errorDetails'] != null) {
+          LoggerService.e('Backend Error Details: ${body['errorDetails']}');
+        }
+        if (body['stack'] != null) {
+          LoggerService.e('Backend Stack Trace: ${body['stack']}');
+        }
         throw ErrorHandler.getMessage(body['message'] ?? 'Server error (${response.statusCode})');
       }
       return body;

@@ -109,7 +109,6 @@ class AIAssistantNotifier extends StateNotifier<AIAssistantState> {
       case 'gu': ttsLocale = 'gu-IN'; break;
       case 'kn': ttsLocale = 'kn-IN'; break;
       case 'ml': ttsLocale = 'ml-IN'; break;
-      case 'ur': ttsLocale = 'ur-IN'; break;
       case 'pa': ttsLocale = 'pa-IN'; break;
     }
     

@@ -598,7 +598,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       {'code': 'kn',  'label': 'ಕನ್ನ',      'fullName': 'ಕನ್ನಡ'},
       {'code': 'ml',  'label': 'മല',         'fullName': 'മലയാളം'},
       {'code': 'or',  'label': 'ଓ',           'fullName': 'ଓଡ଼ିଆ'},
-      {'code': 'ur',  'label': 'اردو',       'fullName': 'اردو'},
     ];
 
     return Container(
