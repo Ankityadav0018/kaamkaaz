@@ -1,6 +1,6 @@
 # Copy this file to key.properties and fill values
 # Never commit key.properties itself
-storePassword=YOUR_KEYSTORE_PASSWORD
-keyPassword=YOUR_KEY_PASSWORD
-keyAlias=upload
+storePassword=Ankit@0018
+keyPassword=Ankit@0018
+keyAlias=kaamkaaz
 storeFile=../upload-keystore.jks

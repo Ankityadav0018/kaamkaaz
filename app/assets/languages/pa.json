@@ -1108,9 +1108,6 @@
   "myWallet": "ਮੇਰਾ ਬਟੂਆ",
   "availableBalance": "ਉਪਲਬਧ ਬਕਾਇਆ",
   "addMoney": "ਪੈਸੇ ਜੋੜੋ",
-  "customAmountHint": "ਕਸਟਮ ਰਕਮ...",
-  "addBtn": "ਸ਼ਾਮਲ ਕਰੋ",
-  "invalidTopupAmount": "ਰਕਮ ₹10 ਅਤੇ ₹10000 ਦੇ ਵਿਚਕਾਰ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ",
   "topupSuccessUpdated": "ਟੌਪ-ਅੱਪ ਸਫਲ! ਬਕਾਇਆ ਅੱਪਡੇਟ ਕੀਤਾ ਗਿਆ।",
   "topupSuccessProcessing": "ਟੌਪ-ਅੱਪ ਸਫਲ! ਬਕਾਇਆ ਅੱਪਡੇਟ ਦੀ ਪ੍ਰਕਿਰਿਆ ਹੋ ਰਹੀ ਹੈ...",
   "topupFailed": "ਟੌਪ-ਅੱਪ ਅਸਫਲ:",
@@ -1118,5 +1115,16 @@
   "walletTopup": "ਵਾਲਿਟ ਟੌਪ-ਅੱਪ",
   "deduction": "ਕਟੌਤੀ",
   "bal": "ਬਾਲ:",
-  "secureWallet": "ਸੁਰੱਖਿਅਤ ਅਤੇ ਐਨਕ੍ਰਿਪਟਡ ਵਾਲਿਟ"
+  "secureWallet": "ਸੁਰੱਖਿਅਤ ਅਤੇ ਐਨਕ੍ਰਿਪਟਡ ਵਾਲਿਟ",
+  "myCredits": "My Credits",
+  "buyCredits": "Buy Credits",
+  "creditPackPurchase": "Credit Pack Purchase",
+  "creditPurchaseSuccess": "Credits added to your account!",
+  "creditPurchaseProcessing": "Credits purchase processing...",
+  "creditPurchaseFailed": "Credit pack purchase failed: ",
+  "failedToLoadCredits": "Failed to load credits",
+  "closedLoopCredits": "Credits valid only for job postings",
+  "creditsAvailable": "Credits Available",
+  "buyNow": "Buy Now",
+  "referralEarnings": "Referral Earnings"
 }

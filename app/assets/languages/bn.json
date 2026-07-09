@@ -1108,9 +1108,6 @@
   "myWallet": "আমার ওয়ালেট",
   "availableBalance": "উপলভ্য ব্যালেন্স",
   "addMoney": "টাকা যোগ করুন",
-  "customAmountHint": "কাস্টম পরিমাণ...",
-  "addBtn": "যোগ করুন",
-  "invalidTopupAmount": "পরিমাণ অবশ্যই ₹10 এবং ₹10000-এর মধ্যে হতে হবে",
   "topupSuccessUpdated": "টপ-আপ সফল! ব্যালেন্স আপডেট করা হয়েছে।",
   "topupSuccessProcessing": "টপ-আপ সফল! ব্যালেন্স আপডেট প্রক্রিয়া করা হচ্ছে...",
   "topupFailed": "টপ-আপ ব্যর্থ হয়েছে:",
@@ -1118,5 +1115,16 @@
   "walletTopup": "ওয়ালেট টপ-আপ",
   "deduction": "ডিডাকশন",
   "bal": "বল:",
-  "secureWallet": "সুরক্ষিত এবং এনক্রিপ্ট করা ওয়ালেট"
+  "secureWallet": "সুরক্ষিত এবং এনক্রিপ্ট করা ওয়ালেট",
+  "myCredits": "My Credits",
+  "buyCredits": "Buy Credits",
+  "creditPackPurchase": "Credit Pack Purchase",
+  "creditPurchaseSuccess": "Credits added to your account!",
+  "creditPurchaseProcessing": "Credits purchase processing...",
+  "creditPurchaseFailed": "Credit pack purchase failed: ",
+  "failedToLoadCredits": "Failed to load credits",
+  "closedLoopCredits": "Credits valid only for job postings",
+  "creditsAvailable": "Credits Available",
+  "buyNow": "Buy Now",
+  "referralEarnings": "Referral Earnings"
 }

@@ -1108,9 +1108,6 @@
   "myWallet": "నా వాలెట్",
   "availableBalance": "అందుబాటులో ఉన్న బ్యాలెన్స్",
   "addMoney": "డబ్బు జోడించండి",
-  "customAmountHint": "కస్టమ్ మొత్తం...",
-  "addBtn": "జోడించు",
-  "invalidTopupAmount": "మొత్తం తప్పనిసరిగా ₹10 మరియు ₹10000 మధ్య ఉండాలి",
   "topupSuccessUpdated": "టాప్-అప్ విజయవంతమైంది! బ్యాలెన్స్ నవీకరించబడింది.",
   "topupSuccessProcessing": "టాప్-అప్ విజయవంతమైంది! బ్యాలెన్స్ నవీకరణను ప్రాసెస్ చేస్తోంది...",
   "topupFailed": "Top-up failed: ",
@@ -1118,5 +1115,16 @@
   "walletTopup": "వాలెట్ టాప్-అప్",
   "deduction": "తగ్గింపు",
   "bal": "బాల:",
-  "secureWallet": "సురక్షిత & ఎన్‌క్రిప్టెడ్ వాలెట్"
+  "secureWallet": "సురక్షిత & ఎన్‌క్రిప్టెడ్ వాలెట్",
+  "myCredits": "My Credits",
+  "buyCredits": "Buy Credits",
+  "creditPackPurchase": "Credit Pack Purchase",
+  "creditPurchaseSuccess": "Credits added to your account!",
+  "creditPurchaseProcessing": "Credits purchase processing...",
+  "creditPurchaseFailed": "Credit pack purchase failed: ",
+  "failedToLoadCredits": "Failed to load credits",
+  "closedLoopCredits": "Credits valid only for job postings",
+  "creditsAvailable": "Credits Available",
+  "buyNow": "Buy Now",
+  "referralEarnings": "Referral Earnings"
 }

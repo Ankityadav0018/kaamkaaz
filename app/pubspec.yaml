@@ -1,7 +1,7 @@
 name: kaamkaaz
 description: Kaamkaaz - Where Works Finds You
 publish_to: 'none'
-version: 1.0.8+10
+version: 1.0.9+11
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

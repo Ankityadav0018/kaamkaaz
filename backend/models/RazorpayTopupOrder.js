@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const razorpayTopupOrderSchema = new mongoose.Schema({
+const razorpayPackOrderSchema = new mongoose.Schema({
   recruiterId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -11,11 +11,25 @@ const razorpayTopupOrderSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  // Razorpay order amount in paise (for payment gateway)
   amount: {
     type: Number,
     required: true,
     min: 0,
     validate: { validator: Number.isInteger, message: '{VALUE} is not an integer value' }
+  },
+  // The credit pack that was purchased (e.g. 'pack_starter_100')
+  packId: {
+    type: String,
+    required: true,
+    default: 'pack_starter_100'
+  },
+  // Number of job posting credits to grant on successful payment
+  creditsToGrant: {
+    type: Number,
+    required: true,
+    min: 1,
+    validate: { validator: Number.isInteger, message: '{VALUE} is not a valid integer credit count' }
   },
   status: {
     type: String,
@@ -32,4 +46,4 @@ const razorpayTopupOrderSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-module.exports = mongoose.model('RazorpayTopupOrder', razorpayTopupOrderSchema);
+module.exports = mongoose.model('RazorpayTopupOrder', razorpayPackOrderSchema);

@@ -37,7 +37,7 @@ exports.workerSelfView = (user) => ({
   driverProfile:    user.driverProfile,
   referralCode:     user.referralCode,
   referralEarnings: user.referralEarnings,
-  walletBalance:    user.walletBalance,
+  referralBalance:  user.referralBalance,
   referralCount:    user.referralCount,
   portfolio:        user.portfolio,
   createdAt:        user.createdAt
@@ -95,7 +95,6 @@ exports.recruiterSelfView = (user) => ({
         verifiedAt:   user.recruiterVerification.verifiedAt
       }
     : null,
-  walletBalance:    user.walletBalance,
   referralCode:     user.referralCode,
   createdAt:        user.createdAt
 });

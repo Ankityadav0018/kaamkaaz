@@ -1108,9 +1108,6 @@
   "myWallet": "ମୋର ୱାଲେଟ୍",
   "availableBalance": "ଉପଲବ୍ଧ ବାଲାନ୍ସ |",
   "addMoney": "ଟଙ୍କା ଯୋଡନ୍ତୁ |",
-  "customAmountHint": "କଷ୍ଟମ୍ ରାଶି ...",
-  "addBtn": "ଯୋଡନ୍ତୁ |",
-  "invalidTopupAmount": "ପରିମାଣ ₹ 10 ରୁ ₹ 10000 ମଧ୍ୟରେ ହେବା ଜରୁରୀ |",
   "topupSuccessUpdated": "ଟପ୍-ଅପ୍ ସଫଳ! ବାଲାନ୍ସ ଅପଡେଟ୍ |",
   "topupSuccessProcessing": "ଟପ୍-ଅପ୍ ସଫଳ! ବାଲାନ୍ସ ଅପଡେଟ୍ ପ୍ରକ୍ରିୟାକରଣ ...",
   "topupFailed": "ଟପ୍-ଅପ୍ ବିଫଳ ହେଲା:",
@@ -1118,5 +1115,16 @@
   "walletTopup": "ୱାଲେଟ୍ ଟପ୍-ଅପ୍ |",
   "deduction": "ରିହାତି",
   "bal": "ବାଲ୍:",
-  "secureWallet": "ସୁରକ୍ଷିତ ଏବଂ ଏନକ୍ରିପ୍ଟ୍ ୱାଲେଟ୍ |"
+  "secureWallet": "ସୁରକ୍ଷିତ ଏବଂ ଏନକ୍ରିପ୍ଟ୍ ୱାଲେଟ୍ |",
+  "myCredits": "My Credits",
+  "buyCredits": "Buy Credits",
+  "creditPackPurchase": "Credit Pack Purchase",
+  "creditPurchaseSuccess": "Credits added to your account!",
+  "creditPurchaseProcessing": "Credits purchase processing...",
+  "creditPurchaseFailed": "Credit pack purchase failed: ",
+  "failedToLoadCredits": "Failed to load credits",
+  "closedLoopCredits": "Credits valid only for job postings",
+  "creditsAvailable": "Credits Available",
+  "buyNow": "Buy Now",
+  "referralEarnings": "Referral Earnings"
 }

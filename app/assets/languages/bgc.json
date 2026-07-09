@@ -1108,9 +1108,6 @@
   "myWallet": "म्हारा बटुवा",
   "availableBalance": "बाकी पैसे",
   "addMoney": "पैसे जोड़ो",
-  "customAmountHint": "कस्टम राशि...",
-  "addBtn": "जोड़ना",
-  "invalidTopupAmount": "राशि ₹10 से ₹10000 के बीच होनी चाहिए",
   "topupSuccessUpdated": "बटुवा भर गया! पैसे अपडेट हुए।",
   "topupSuccessProcessing": "टॉप-अप सफल! शेष राशि अद्यतन संसाधित हो रही है...",
   "topupFailed": "बटुवा भरण म गलती: ",
@@ -1148,5 +1145,16 @@
   "urgentPosting": "जरूरी पोस्टिंग",
   "makeUrgent": "जरूरी बणाओ",
   "registerBtn": "नाम दर्ज करो",
-  "urgentFeeInfo": "जरूरी पोस्टिंग खातर ₹9 लागैं"
+  "urgentFeeInfo": "जरूरी पोस्टिंग खातर ₹9 लागैं",
+  "myCredits": "My Credits",
+  "buyCredits": "Buy Credits",
+  "creditPackPurchase": "Credit Pack Purchase",
+  "creditPurchaseSuccess": "Credits added to your account!",
+  "creditPurchaseProcessing": "Credits purchase processing...",
+  "creditPurchaseFailed": "Credit pack purchase failed: ",
+  "failedToLoadCredits": "Failed to load credits",
+  "closedLoopCredits": "Credits valid only for job postings",
+  "creditsAvailable": "Credits Available",
+  "buyNow": "Buy Now",
+  "referralEarnings": "Referral Earnings"
 }

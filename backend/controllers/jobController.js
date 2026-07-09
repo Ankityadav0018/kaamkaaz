@@ -1,7 +1,7 @@
 const Job = require('../models/Job');
 const User = require('../models/User');
-const Wallet = require('../models/Wallet');
-const WalletTransaction = require('../models/WalletTransaction');
+const UserCredits = require('../models/UserCredits'); // UserCredits model
+const CreditTransaction = require('../models/CreditTransaction'); // CreditTransaction model
 const { createNotification, createUrgentNotification } = require('../utils/notification');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
@@ -41,48 +41,48 @@ exports.postJob = async (req, res) => {
 
     // Handle normal job creation or urgent order creation
     if (isUrgent) {
-      const urgentFeeAmount = 900; // 900 paise = ₹9
+      const urgentFeeCredits = 1; // 1 credit = 1 urgent job posting
 
-      if (paymentMethod === 'wallet') {
+      if (paymentMethod === 'credits' || paymentMethod === 'wallet') {
         const session = await Job.startSession();
         session.startTransaction();
         try {
-          // Atomic balance check and deduction using $inc
-          const updatedWallet = await Wallet.findOneAndUpdate(
-            { recruiterId: req.user.id, balance: { $gte: urgentFeeAmount } },
-            { $inc: { balance: -urgentFeeAmount } },
+          // Atomic credit check and deduction using $inc
+          const updatedCredits = await UserCredits.findOneAndUpdate(
+            { recruiterId: req.user.id, credits: { $gte: urgentFeeCredits } },
+            { $inc: { credits: -urgentFeeCredits } },
             { new: true, session }
           );
 
-          if (!updatedWallet) {
-            // Balance was insufficient or wallet doesn't exist
+          if (!updatedCredits) {
+            // Insufficient credits or account doesn't exist
             job.urgent_payment_status = 'failed';
             await job.save({ session });
             await session.commitTransaction();
             session.endSession();
-            return res.status(400).json({ success: false, message: 'Insufficient wallet balance for urgent posting' });
+            return res.status(400).json({ success: false, message: 'Insufficient job posting credits. Please buy a credit pack.' });
           }
 
-          // Create a debit transaction record
-          await WalletTransaction.create([{
-            walletId: updatedWallet._id,
+          // Create a credit deduction record
+          await CreditTransaction.create([{
+            creditsId: updatedCredits._id,
             recruiterId: req.user.id,
             type: 'DEBIT',
-            amount: urgentFeeAmount,
-            balanceBefore: updatedWallet.balance + urgentFeeAmount,
-            balanceAfter: updatedWallet.balance,
-            source: 'URGENT_JOB_DEDUCTION',
+            credits: urgentFeeCredits,
+            creditsBefore: updatedCredits.credits + urgentFeeCredits,
+            creditsAfter: updatedCredits.credits,
+            source: 'JOB_POST_DEDUCTION',
             referenceId: job._id.toString(),
             idempotencyKey: req.user.id + '_' + job._id.toString(),
             status: 'SUCCESS',
-            description: `Urgent fee for job: ${job.title}`
+            description: `Job posting credit used: ${job.title}`
           }], { session });
 
           // Update Job Payment Status
-          job.urgent_payment_id = `wallet_${Date.now()}`;
+          job.urgent_payment_id = `credits_${Date.now()}`;
           job.urgent_payment_status = 'success';
           job.urgent_paid_at = new Date();
-          job.urgent_fee_amount = urgentFeeAmount;
+          job.urgent_fee_amount = urgentFeeCredits;
           await job.save({ session });
 
           await session.commitTransaction();
@@ -90,7 +90,7 @@ exports.postJob = async (req, res) => {
         } catch (error) {
           await session.abortTransaction();
           session.endSession();
-          console.error('Transaction error in wallet payment:', error);
+          console.error('Transaction error in credits payment:', error);
           return res.status(500).json({ success: false, message: 'Payment processing failed due to server error' });
         }
 
@@ -134,7 +134,7 @@ exports.postJob = async (req, res) => {
 
         return res.status(201).json({
           success: true,
-          message: 'Job created and paid via wallet. Notifications sent!',
+          message: 'Job created and job posting credit used. Notifications sent!',
           isUrgentOrder: false, // Don't trigger razorpay on frontend
           data: job
         });
@@ -246,28 +246,29 @@ exports.updateJob = async (req, res) => {
       if (job.isUrgent === true && isUrgent === false) {
         // Downgrade to normal - refund fee if paid
         if (job.urgent_payment_status === 'success' && job.urgent_fee_amount > 0) {
-          const session = await Wallet.startSession();
+          const session = await UserCredits.startSession();
           session.startTransaction();
           try {
-            let wallet = await Wallet.findOne({ recruiterId: job.recruiterId }).session(session);
-            if (!wallet) {
-              wallet = new Wallet({ recruiterId: job.recruiterId, balance: 0 });
+            let userCredits = await UserCredits.findOne({ recruiterId: job.recruiterId }).session(session);
+            if (!userCredits) {
+              userCredits = new UserCredits({ recruiterId: job.recruiterId, credits: 0 });
             }
-              wallet.balance += job.urgent_fee_amount;
-              await wallet.save({ session });
+              const refundCredits = job.urgent_fee_amount; // urgent_fee_amount stores credit count now
+              userCredits.credits += refundCredits;
+              await userCredits.save({ session });
               
-              await WalletTransaction.create([{
-                walletId: wallet._id,
+              await CreditTransaction.create([{
+                creditsId: userCredits._id,
                 recruiterId: job.recruiterId,
                 type: 'CREDIT',
-                amount: job.urgent_fee_amount,
-                balanceBefore: wallet.balance - job.urgent_fee_amount,
-                balanceAfter: wallet.balance,
-                source: 'URGENT_JOB_REFUND',
+                credits: refundCredits,
+                creditsBefore: userCredits.credits - refundCredits,
+                creditsAfter: userCredits.credits,
+                source: 'JOB_POST_REFUND',
                 referenceId: job._id.toString(),
                 idempotencyKey: `refund_edit_${job._id.toString()}_${Date.now()}`,
                 status: 'SUCCESS',
-                description: `Refund for downgrading urgent job: ${job.title}`
+                description: `Credit refund for downgrading urgent job: ${job.title}`
               }], { session });
             
             job.urgent_payment_status = 'none';
@@ -280,8 +281,8 @@ exports.updateJob = async (req, res) => {
           } catch (err) {
             await session.abortTransaction();
             session.endSession();
-            console.error('Wallet Refund Error:', err);
-            return res.status(500).json({ success: false, message: 'Server error processing refund' });
+            console.error('Credit Refund Error:', err);
+            return res.status(500).json({ success: false, message: 'Server error processing credit refund' });
           }
         } else {
           job.isUrgent = false;
@@ -540,28 +541,29 @@ exports.deleteJob = async (req, res) => {
     }
 
     if (job.isUrgent && job.urgent_payment_status === 'success' && job.urgent_fee_amount > 0) {
-      const session = await Wallet.startSession();
+      const session = await UserCredits.startSession();
       session.startTransaction();
       try {
-        let wallet = await Wallet.findOne({ recruiterId: job.recruiterId }).session(session);
-        if (!wallet) {
-          wallet = new Wallet({ recruiterId: job.recruiterId, balance: 0 });
+        let userCredits = await UserCredits.findOne({ recruiterId: job.recruiterId }).session(session);
+        if (!userCredits) {
+          userCredits = new UserCredits({ recruiterId: job.recruiterId, credits: 0 });
         }
-          wallet.balance += job.urgent_fee_amount;
-          await wallet.save({ session });
+          const refundCredits = job.urgent_fee_amount; // urgent_fee_amount stores credit count
+          userCredits.credits += refundCredits;
+          await userCredits.save({ session });
           
-          await WalletTransaction.create([{
-            walletId: wallet._id,
+          await CreditTransaction.create([{
+            creditsId: userCredits._id,
             recruiterId: job.recruiterId,
             type: 'CREDIT',
-            amount: job.urgent_fee_amount,
-            balanceBefore: wallet.balance - job.urgent_fee_amount,
-            balanceAfter: wallet.balance,
-            source: 'URGENT_JOB_REFUND',
+            credits: refundCredits,
+            creditsBefore: userCredits.credits - refundCredits,
+            creditsAfter: userCredits.credits,
+            source: 'JOB_POST_REFUND',
             referenceId: job._id.toString(),
             idempotencyKey: `refund_del_${job._id.toString()}_${Date.now()}`,
             status: 'SUCCESS',
-            description: `Refund for deleted urgent job: ${job.title}`
+            description: `Credit refund for deleted urgent job: ${job.title}`
           }], { session });
         await job.deleteOne({ session });
         await session.commitTransaction();
@@ -570,8 +572,8 @@ exports.deleteJob = async (req, res) => {
       } catch (err) {
         await session.abortTransaction();
         session.endSession();
-        console.error('Wallet Refund Error:', err);
-        return res.status(500).json({ success: false, message: 'Server error processing refund during deletion' });
+        console.error('Credit Refund Error:', err);
+        return res.status(500).json({ success: false, message: 'Server error processing credit refund during deletion' });
       }
     }
 

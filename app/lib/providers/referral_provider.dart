@@ -7,7 +7,7 @@ import '../models/referred_user_model.dart';
 class ReferralState {
   final String? referralCode;
   final String? referralLink;
-  final double walletBalance;
+  final double walletBalance; // referral earnings balance (for withdrawal via UPI)
   final double referralEarnings;
   final int referralCount;
   final List<TransactionModel> transactions;
@@ -63,7 +63,8 @@ class ReferralNotifier extends StateNotifier<ReferralState> {
         state = state.copyWith(
           referralCode: res['referralCode'],
           referralLink: res['referralLink'],
-          walletBalance: (res['walletBalance'] as num?)?.toDouble() ?? 0.0,
+          // Backend returns 'referralBalance' (renamed from walletBalance)
+          walletBalance: ((res['referralBalance'] ?? res['walletBalance']) as num?)?.toDouble() ?? 0.0,
           referralEarnings: (res['referralEarnings'] as num?)?.toDouble() ?? 0.0,
           referralCount: res['referralCount'] ?? 0,
           isLoading: false,
@@ -87,8 +88,9 @@ class ReferralNotifier extends StateNotifier<ReferralState> {
           referralCount: res['totalReferrals'] ?? state.referralCount,
           referralEarnings:
               (res['totalEarnings'] as num?)?.toDouble() ?? state.referralEarnings,
+          // Backend returns 'referralBalance' (renamed from walletBalance)
           walletBalance:
-              (res['walletBalance'] as num?)?.toDouble() ?? state.walletBalance,
+              ((res['referralBalance'] ?? res['walletBalance']) as num?)?.toDouble() ?? state.walletBalance,
         );
       }
     } catch (e) {

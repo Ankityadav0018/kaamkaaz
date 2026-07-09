@@ -13,7 +13,7 @@ import '../../l10n/locale_keys.g.dart';
 import '../../services/secure_upload_service.dart';
 import '../../models/job_model.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
-import 'package:kaamkaaz/services/wallet_service.dart';
+import 'package:kaamkaaz/services/credits_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/api_service.dart';
 import '../../utils/api_config.dart';
@@ -69,7 +69,7 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
   late Razorpay _razorpay;
   String? _currentRazorpayOrderId;
   String? _currentJobId;
-  int _walletBalance = 0;
+  int _creditsBalance = 0;
 
   final List<String> _selectedSkills = [];
   final List<String> _allSkills = [
@@ -153,9 +153,9 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
 
   Future<void> _fetchWallet() async {
     try {
-      final res = await WalletService.getWallet();
+      final res = await CreditsService.getCredits();
       if (mounted) {
-        setState(() => _walletBalance = (res['data']?['balance_paise'] as num?)?.toInt() ?? 0);
+        setState(() => _creditsBalance = (res['data']?['credits_balance'] as num?)?.toInt() ?? 0);
       }
     } catch (e) {
       // Silently ignore
@@ -359,7 +359,7 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
-        final hasEnoughBalance = _walletBalance >= 900;
+        final hasEnoughCredits = _creditsBalance >= 1;
         return Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
@@ -367,24 +367,24 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
             children: [
               const Text('Select Payment Method', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              const Text('Urgent job fee: ₹9.00', style: TextStyle(fontSize: 16, color: Colors.grey)),
+              const Text('Urgent job fee: 1 posting credit', style: TextStyle(fontSize: 16, color: Colors.grey)),
               const SizedBox(height: 24),
               ListTile(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                tileColor: hasEnoughBalance ? AppColors.success.withOpacity(0.1) : Colors.grey.shade200,
-                leading: Icon(Icons.account_balance_wallet, color: hasEnoughBalance ? AppColors.success : Colors.grey),
-                title: const Text('Pay via Wallet'),
-                subtitle: Text('Balance: ₹${(_walletBalance / 100).toStringAsFixed(2)}'),
-                trailing: hasEnoughBalance ? null : TextButton(
+                tileColor: hasEnoughCredits ? AppColors.success.withOpacity(0.1) : Colors.grey.shade200,
+                leading: Icon(Icons.confirmation_number_rounded, color: hasEnoughCredits ? AppColors.success : Colors.grey),
+                title: const Text('Use Job Credits'),
+                subtitle: Text('Credits available: $_creditsBalance'),
+                trailing: hasEnoughCredits ? null : TextButton(
                   onPressed: () {
                     Navigator.pop(ctx);
-                    // Could route to wallet top-up directly
+                    // Route to credits screen
                   },
-                  child: const Text('Top Up Now', style: TextStyle(color: AppColors.primary)),
+                  child: const Text('Buy Credits', style: TextStyle(color: AppColors.primary)),
                 ),
-                onTap: hasEnoughBalance ? () {
+                onTap: hasEnoughCredits ? () {
                   Navigator.pop(ctx);
-                  _submitJobWithPaymentMethod(jobData, 'wallet');
+                  _submitJobWithPaymentMethod(jobData, 'credits');
                 } : null,
               ),
               const SizedBox(height: 12),
@@ -412,10 +412,10 @@ class _PostJobScreenState extends ConsumerState<PostJobScreen> {
     try {
       final result = await ref.read(jobProvider.notifier).postJob(jobData);
       
-      if (paymentMethod == 'wallet') {
+      if (paymentMethod == 'credits') {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Payment Successful! Urgent notifications sent.'),
+            content: Text('1 credit used. Urgent notifications sent.'),
             backgroundColor: AppColors.success,
           ));
           context.pop();

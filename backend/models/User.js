@@ -164,7 +164,9 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  walletBalance: {
+  // Referral earnings balance (for workers — NOT job posting credits)
+  // Job posting credits are stored in the 'wallets' collection (UserCredits model)
+  referralBalance: {
     type: Number,
     default: 0
   },

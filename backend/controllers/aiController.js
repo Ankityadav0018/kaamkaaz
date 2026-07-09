@@ -53,7 +53,7 @@ Kaamkaaz is a hyperlocal daily wage job marketplace for blue-collar workers (Kaa
 The user is stuck or has a question. Look at the Current App Screen and their Role to understand what they are trying to do. Provide a short (1-3 sentences), highly actionable answer on what button to press, what to fill out next, or how a feature works based on the knowledge base. Be friendly and respectful (e.g., use "Bhaiya", "Didi", "Ji").`;
 
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-flash-latest',
+      model: 'gemini-2.5-flash',
       systemInstruction: systemPrompt
     });
     // Map history to Gemini format if provided
@@ -86,6 +86,9 @@ The user is stuck or has a question. Look at the Current App Screen and their Ro
         // Check if error is a 503 Service Unavailable
         const isServiceUnavailable = error.message && error.message.includes('503');
         if (retries === 0 || (!isServiceUnavailable && error.status !== 503)) {
+          if (isServiceUnavailable || error.status === 503) {
+            return res.status(503).json({ success: false, message: 'The AI assistant is currently experiencing high demand. Please try again in a few moments.' });
+          }
           throw error;
         }
         console.warn(`Gemini API 503 Error. Retrying in ${delay}ms...`);

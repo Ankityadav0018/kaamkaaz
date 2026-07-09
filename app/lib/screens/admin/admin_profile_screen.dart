@@ -92,8 +92,8 @@ class AdminProfileScreen extends ConsumerWidget {
               _actionTile(context, Icons.balance_outlined, 'Dispute Management',
                   '/admin/disputes'),
               const Divider(),
-              _actionTile(context, Icons.account_balance_wallet_outlined,
-                  'Withdrawal Transactions', '/admin/withdrawals'),
+              _actionTile(context, Icons.currency_rupee_outlined,
+                  'Referral Withdrawals', '/admin/withdrawals'),
             ]),
             const SizedBox(height: 24),
 

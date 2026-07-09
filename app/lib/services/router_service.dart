@@ -24,7 +24,7 @@ import '../screens/worker/driver_kyc_status_screen.dart';
 import '../screens/worker/driver_profile_screen.dart';
 import '../screens/recruiter/recruiter_home_screen.dart';
 import '../screens/recruiter/post_job_screen.dart';
-import '../screens/recruiter/wallet_screen.dart';
+import '../screens/recruiter/credits_screen.dart';
 import '../screens/recruiter/manage_applicants_screen.dart';
 import '../screens/recruiter/worker_profile_screen.dart';
 import '../screens/recruiter/driver_public_profile_screen.dart';
@@ -316,7 +316,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/recruiter',
         builder: (_, __) => const RecruiterHomeScreen(),
         routes: [
-          GoRoute(path: 'wallet', builder: (_, __) => const WalletScreen()),
+          GoRoute(path: 'credits', builder: (_, __) => const CreditsScreen()),
           GoRoute(path: 'post-job', builder: (_, __) => const PostJobScreen()),
           GoRoute(
               path: 'edit-job',

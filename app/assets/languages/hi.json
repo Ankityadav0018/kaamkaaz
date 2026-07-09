@@ -1108,9 +1108,6 @@
   "myWallet": "मेरा बटुआ",
   "availableBalance": "उपलब्ध शेष राशि",
   "addMoney": "पैसे जोड़ें",
-  "customAmountHint": "कस्टम राशि...",
-  "addBtn": "जोड़ना",
-  "invalidTopupAmount": "राशि ₹10 से ₹10000 के बीच होनी चाहिए",
   "topupSuccessUpdated": "टॉप-अप सफल! बैलेंस अपडेट किया गया.",
   "topupSuccessProcessing": "टॉप-अप सफल! शेष राशि अद्यतन संसाधित हो रही है...",
   "topupFailed": "टॉप-अप विफल:",
@@ -1118,5 +1115,16 @@
   "walletTopup": "वॉलेट टॉप-अप",
   "deduction": "कटौती",
   "bal": "बाल:",
-  "secureWallet": "सुरक्षित और एन्क्रिप्टेड वॉलेट"
+  "secureWallet": "सुरक्षित और एन्क्रिप्टेड वॉलेट",
+  "myCredits": "My Credits",
+  "buyCredits": "Buy Credits",
+  "creditPackPurchase": "Credit Pack Purchase",
+  "creditPurchaseSuccess": "Credits added to your account!",
+  "creditPurchaseProcessing": "Credits purchase processing...",
+  "creditPurchaseFailed": "Credit pack purchase failed: ",
+  "failedToLoadCredits": "Failed to load credits",
+  "closedLoopCredits": "Credits valid only for job postings",
+  "creditsAvailable": "Credits Available",
+  "buyNow": "Buy Now",
+  "referralEarnings": "Referral Earnings"
 }

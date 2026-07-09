@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
-const Wallet = require('../models/Wallet');
-const WalletTransaction = require('../models/WalletTransaction');
+const UserCredits = require('../models/UserCredits'); // UserCredits model
+const CreditTransaction = require('../models/CreditTransaction'); // CreditTransaction model
 
 const generateReferralCode = async (name, phone) => {
   let namePart = (name || 'USR').replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase();
@@ -48,37 +48,39 @@ const applyReferralReward = async (referrerId, newUserId) => {
     await referrer.save({ session });
 
     if (referrer.role === 'recruiter') {
-      const rWallet = await Wallet.findOne({ recruiterId: referrer._id }).session(session);
-      if (rWallet) {
-        const amountPaise = 1000; // ₹10
-        const balanceBefore = rWallet.balance;
-        const balanceAfter = balanceBefore + amountPaise;
+      // For recruiters: add bonus credits to their job posting credits account
+      const rCredits = await UserCredits.findOne({ recruiterId: referrer._id }).session(session);
+      if (rCredits) {
+        const bonusCredits = 1; // 1 bonus credit for referring a new user
+        const creditsBefore = rCredits.credits;
+        const creditsAfter = creditsBefore + bonusCredits;
         
-        rWallet.balance = balanceAfter;
-        await rWallet.save({ session });
+        rCredits.credits = creditsAfter;
+        await rCredits.save({ session });
         
-        await WalletTransaction.create([{
-          walletId: rWallet._id,
+        await CreditTransaction.create([{
+          creditsId: rCredits._id,
           recruiterId: referrer._id,
           type: 'CREDIT',
-          amount: amountPaise,
-          balanceBefore,
-          balanceAfter,
+          credits: bonusCredits,
+          creditsBefore,
+          creditsAfter,
           source: 'REFERRAL_BONUS',
           referenceId: newUser._id.toString(),
           idempotencyKey: `REF_BONUS_${referrer._id}_${newUser._id}`,
           status: 'SUCCESS',
-          description: `Reward for referring ${newUser.name || 'a new user'}`
+          description: `Referral bonus: 1 credit for referring ${newUser.name || 'a new user'}`
         }], { session });
       }
     } else {
-      referrer.walletBalance = (referrer.walletBalance || 0) + 10;
+      // For workers: add referral earnings (cash balance, not job credits)
+      referrer.referralBalance = (referrer.referralBalance || 0) + 10;
       await referrer.save({ session });
       await Transaction.create([{
         userId: referrer._id,
         type: 'referral_reward',
         amount: 10,
-        description: `Reward for referring ${newUser.name || 'a new user'}`,
+        description: `Referral earnings for referring ${newUser.name || 'a new user'}`,
         status: 'completed'
       }], { session });
     }
@@ -88,31 +90,33 @@ const applyReferralReward = async (referrerId, newUserId) => {
     await newUser.save({ session });
 
     if (newUser.role === 'recruiter') {
-      const nWallet = await Wallet.findOne({ recruiterId: newUser._id }).session(session);
-      if (nWallet) {
-        const amountPaise = 1000; // ₹10
-        const balanceBefore = nWallet.balance;
-        const balanceAfter = balanceBefore + amountPaise;
+      // For new recruiter: add bonus credits to their job posting credits account
+      const nCredits = await UserCredits.findOne({ recruiterId: newUser._id }).session(session);
+      if (nCredits) {
+        const bonusCredits = 1; // 1 welcome credit
+        const creditsBefore = nCredits.credits;
+        const creditsAfter = creditsBefore + bonusCredits;
         
-        nWallet.balance = balanceAfter;
-        await nWallet.save({ session });
+        nCredits.credits = creditsAfter;
+        await nCredits.save({ session });
         
-        await WalletTransaction.create([{
-          walletId: nWallet._id,
+        await CreditTransaction.create([{
+          creditsId: nCredits._id,
           recruiterId: newUser._id,
           type: 'CREDIT',
-          amount: amountPaise,
-          balanceBefore,
-          balanceAfter,
+          credits: bonusCredits,
+          creditsBefore,
+          creditsAfter,
           source: 'REFERRAL_BONUS',
           referenceId: referrer._id.toString(),
           idempotencyKey: `REF_BONUS_WELCOME_${newUser._id}`,
           status: 'SUCCESS',
-          description: `Welcome bonus from referral code`
+          description: `Welcome bonus: 1 credit from referral code`
         }], { session });
       }
     } else {
-      newUser.walletBalance = (newUser.walletBalance || 0) + 10;
+      // For new worker: add referral earnings
+      newUser.referralBalance = (newUser.referralBalance || 0) + 10;
       await newUser.save({ session });
       await Transaction.create([{
         userId: newUser._id,

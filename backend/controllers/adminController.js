@@ -413,7 +413,7 @@ exports.getAnalytics = async (req, res) => {
 exports.getPendingWithdrawals = async (req, res) => {
   try {
     const withdrawals = await Transaction.find({ type: 'withdrawal', status: 'pending' })
-      .populate('userId', 'name phone role walletBalance')
+      .populate('userId', 'name phone role referralBalance')
       .sort({ createdAt: 1 });
 
     res.status(200).json({ success: true, count: withdrawals.length, data: withdrawals });
@@ -428,7 +428,7 @@ exports.getPendingWithdrawals = async (req, res) => {
 exports.getWithdrawalHistory = async (req, res) => {
   try {
     const withdrawals = await Transaction.find({ type: 'withdrawal' })
-      .populate('userId', 'name phone role walletBalance')
+      .populate('userId', 'name phone role referralBalance')
       .sort({ updatedAt: -1 });
 
     res.status(200).json({ success: true, count: withdrawals.length, data: withdrawals });
@@ -463,11 +463,11 @@ exports.processWithdrawal = async (req, res) => {
     }
     await transaction.save();
 
-    // If rejected, refund the wallet balance of the user
+    // If rejected, refund the referral balance of the user
     if (status === 'rejected') {
       const user = await User.findById(transaction.userId);
       if (user) {
-        user.walletBalance = (user.walletBalance || 0) + transaction.amount;
+        user.referralBalance = (user.referralBalance || 0) + transaction.amount;
         await user.save();
       }
     }
@@ -482,7 +482,7 @@ exports.processWithdrawal = async (req, res) => {
           title: status === 'completed' ? '✅ Withdrawal Success!' : '❌ Withdrawal Rejected',
           message: status === 'completed'
             ? `Your withdrawal request of ₹${transaction.amount} has been approved and completed.`
-            : `Your withdrawal request of ₹${transaction.amount} was rejected. Note: ${adminNote || 'Refunded to wallet.'}`,
+            : `Your withdrawal request of ₹${transaction.amount} was rejected. Note: ${adminNote || 'Refunded to referral earnings.'}`,
           type: status === 'completed' ? 'withdrawal_completed' : 'withdrawal_failed',
           relatedId: transaction._id,
           io

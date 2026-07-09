@@ -1108,9 +1108,6 @@
   "myWallet": "माझे वॉलेट",
   "availableBalance": "उपलब्ध शिल्लक",
   "addMoney": "पैसे जोडा",
-  "customAmountHint": "कस्टम रक्कम...",
-  "addBtn": "ॲड",
-  "invalidTopupAmount": "रक्कम ₹10 आणि ₹10000 च्या दरम्यान असणे आवश्यक आहे",
   "topupSuccessUpdated": "टॉप-अप यशस्वी! शिल्लक अपडेट केली.",
   "topupSuccessProcessing": "टॉप-अप यशस्वी! शिल्लक अपडेटवर प्रक्रिया करत आहे...",
   "topupFailed": "टॉप-अप अयशस्वी:",
@@ -1118,5 +1115,16 @@
   "walletTopup": "वॉलेट टॉप-अप",
   "deduction": "वजावट",
   "bal": "बाल:",
-  "secureWallet": "सुरक्षित आणि एनक्रिप्टेड वॉलेट"
+  "secureWallet": "सुरक्षित आणि एनक्रिप्टेड वॉलेट",
+  "myCredits": "My Credits",
+  "buyCredits": "Buy Credits",
+  "creditPackPurchase": "Credit Pack Purchase",
+  "creditPurchaseSuccess": "Credits added to your account!",
+  "creditPurchaseProcessing": "Credits purchase processing...",
+  "creditPurchaseFailed": "Credit pack purchase failed: ",
+  "failedToLoadCredits": "Failed to load credits",
+  "closedLoopCredits": "Credits valid only for job postings",
+  "creditsAvailable": "Credits Available",
+  "buyNow": "Buy Now",
+  "referralEarnings": "Referral Earnings"
 }

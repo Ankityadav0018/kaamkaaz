@@ -45,7 +45,7 @@
     "own_code": "Cannot use your own referral code",
     "apply_failed": "Failed to apply referral reward",
     "min_withdrawal": "Minimum withdrawal amount is ₹{{amount}}",
-    "insufficient_balance": "Insufficient wallet balance"
+    "insufficient_balance": "Insufficient referral earnings balance"
   },
   "rating": {
     "score_range": "Score must be between 1 and 5",

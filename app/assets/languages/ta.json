@@ -1108,9 +1108,6 @@
   "myWallet": "எனது பணப்பை",
   "availableBalance": "இருப்பு உள்ளது",
   "addMoney": "பணம் சேர்",
-  "customAmountHint": "விருப்பத் தொகை...",
-  "addBtn": "சேர்",
-  "invalidTopupAmount": "தொகை ₹10 முதல் ₹10000 வரை இருக்க வேண்டும்",
   "topupSuccessUpdated": "டாப்-அப் வெற்றி! இருப்பு புதுப்பிக்கப்பட்டது.",
   "topupSuccessProcessing": "டாப்-அப் வெற்றி! இருப்பு புதுப்பிப்பைச் செயலாக்குகிறது...",
   "topupFailed": "டாப்-அப் தோல்வி:",
@@ -1118,5 +1115,16 @@
   "walletTopup": "வாலட் டாப்-அப்",
   "deduction": "கழித்தல்",
   "bal": "பால்:",
-  "secureWallet": "பாதுகாப்பான & மறைகுறியாக்கப்பட்ட பணப்பை"
+  "secureWallet": "பாதுகாப்பான & மறைகுறியாக்கப்பட்ட பணப்பை",
+  "myCredits": "My Credits",
+  "buyCredits": "Buy Credits",
+  "creditPackPurchase": "Credit Pack Purchase",
+  "creditPurchaseSuccess": "Credits added to your account!",
+  "creditPurchaseProcessing": "Credits purchase processing...",
+  "creditPurchaseFailed": "Credit pack purchase failed: ",
+  "failedToLoadCredits": "Failed to load credits",
+  "closedLoopCredits": "Credits valid only for job postings",
+  "creditsAvailable": "Credits Available",
+  "buyNow": "Buy Now",
+  "referralEarnings": "Referral Earnings"
 }

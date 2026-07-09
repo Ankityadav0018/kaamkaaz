@@ -1108,9 +1108,6 @@
   "myWallet": "എൻ്റെ വാലറ്റ്",
   "availableBalance": "ലഭ്യമായ ബാലൻസ്",
   "addMoney": "പണം ചേർക്കുക",
-  "customAmountHint": "ഇഷ്‌ടാനുസൃത തുക...",
-  "addBtn": "ചേർക്കുക",
-  "invalidTopupAmount": "തുക ₹10നും ₹10000നും ഇടയിലായിരിക്കണം",
   "topupSuccessUpdated": "ടോപ്പ്-അപ്പ് വിജയിച്ചു! ബാലൻസ് അപ്ഡേറ്റ് ചെയ്തു.",
   "topupSuccessProcessing": "ടോപ്പ്-അപ്പ് വിജയിച്ചു! ബാലൻസ് അപ്‌ഡേറ്റ് പ്രോസസ്സ് ചെയ്യുന്നു...",
   "topupFailed": "ടോപ്പ്-അപ്പ് പരാജയപ്പെട്ടു:",
@@ -1118,5 +1115,16 @@
   "walletTopup": "വാലറ്റ് ടോപ്പ്-അപ്പ്",
   "deduction": "കിഴിവ്",
   "bal": "ബാല്:",
-  "secureWallet": "സുരക്ഷിതവും എൻക്രിപ്റ്റ് ചെയ്തതുമായ വാലറ്റ്"
+  "secureWallet": "സുരക്ഷിതവും എൻക്രിപ്റ്റ് ചെയ്തതുമായ വാലറ്റ്",
+  "myCredits": "My Credits",
+  "buyCredits": "Buy Credits",
+  "creditPackPurchase": "Credit Pack Purchase",
+  "creditPurchaseSuccess": "Credits added to your account!",
+  "creditPurchaseProcessing": "Credits purchase processing...",
+  "creditPurchaseFailed": "Credit pack purchase failed: ",
+  "failedToLoadCredits": "Failed to load credits",
+  "closedLoopCredits": "Credits valid only for job postings",
+  "creditsAvailable": "Credits Available",
+  "buyNow": "Buy Now",
+  "referralEarnings": "Referral Earnings"
 }

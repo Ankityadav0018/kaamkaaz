@@ -1108,9 +1108,6 @@
   "myWallet": "ನನ್ನ ವಾಲೆಟ್",
   "availableBalance": "ಲಭ್ಯವಿರುವ ಬ್ಯಾಲೆನ್ಸ್",
   "addMoney": "ಹಣವನ್ನು ಸೇರಿಸಿ",
-  "customAmountHint": "ಕಸ್ಟಮ್ ಮೊತ್ತ...",
-  "addBtn": "ಸೇರಿಸಿ",
-  "invalidTopupAmount": "ಮೊತ್ತವು ₹10 ರಿಂದ ₹10000 ರ ನಡುವೆ ಇರಬೇಕು",
   "topupSuccessUpdated": "ಟಾಪ್ ಅಪ್ ಯಶಸ್ವಿಯಾಗಿದೆ! ಬ್ಯಾಲೆನ್ಸ್ ಅನ್ನು ನವೀಕರಿಸಲಾಗಿದೆ.",
   "topupSuccessProcessing": "ಟಾಪ್ ಅಪ್ ಯಶಸ್ವಿಯಾಗಿದೆ! ಬ್ಯಾಲೆನ್ಸ್ ನವೀಕರಣವನ್ನು ಪ್ರಕ್ರಿಯೆಗೊಳಿಸಲಾಗುತ್ತಿದೆ...",
   "topupFailed": "ಟಾಪ್ ಅಪ್ ವಿಫಲವಾಗಿದೆ:",
@@ -1118,5 +1115,16 @@
   "walletTopup": "ವಾಲೆಟ್ ಟಾಪ್-ಅಪ್",
   "deduction": "ಕಡಿತಗೊಳಿಸುವಿಕೆ",
   "bal": "ಬಾಲ:",
-  "secureWallet": "ಸುರಕ್ಷಿತ ಮತ್ತು ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡಿದ ವಾಲೆಟ್"
+  "secureWallet": "ಸುರಕ್ಷಿತ ಮತ್ತು ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡಿದ ವಾಲೆಟ್",
+  "myCredits": "My Credits",
+  "buyCredits": "Buy Credits",
+  "creditPackPurchase": "Credit Pack Purchase",
+  "creditPurchaseSuccess": "Credits added to your account!",
+  "creditPurchaseProcessing": "Credits purchase processing...",
+  "creditPurchaseFailed": "Credit pack purchase failed: ",
+  "failedToLoadCredits": "Failed to load credits",
+  "closedLoopCredits": "Credits valid only for job postings",
+  "creditsAvailable": "Credits Available",
+  "buyNow": "Buy Now",
+  "referralEarnings": "Referral Earnings"
 }

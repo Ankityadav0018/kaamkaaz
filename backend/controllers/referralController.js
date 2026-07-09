@@ -27,7 +27,7 @@ exports.getMyCode = async (req, res) => {
       referralLink,
       referralCount: user.referralCount || 0,
       referralEarnings: user.referralEarnings || 0,
-      walletBalance: user.walletBalance || 0
+      referralBalance: user.referralBalance || 0
     });
   } catch (error) {
     console.error('Error fetching referral code:', error);
@@ -57,7 +57,7 @@ exports.getStats = async (req, res) => {
       success: true,
       totalReferrals: user.referralCount || 0,
       totalEarnings: user.referralEarnings || 0,
-      walletBalance: user.walletBalance || 0,
+      referralBalance: user.referralBalance || 0,
       referredUsers: formattedUsers
     });
   } catch (error) {
@@ -148,7 +148,7 @@ exports.requestWithdrawal = async (req, res) => {
       return res.status(404).json({ success: false, message: req.t('general.not_found') });
     }
 
-    if ((user.walletBalance || 0) < amount) {
+    if ((user.referralBalance || 0) < amount) {
       return res.status(400).json({ success: false, message: req.t('referral.insufficient_balance') });
     }
 
@@ -162,8 +162,8 @@ exports.requestWithdrawal = async (req, res) => {
       status: 'pending'
     });
 
-    // Deduct balance
-    user.walletBalance -= amount;
+    // Deduct from referral balance
+    user.referralBalance -= amount;
     await user.save();
 
     // Notify all admins about the new withdrawal request

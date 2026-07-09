@@ -1231,8 +1231,8 @@ class _ProfilePageState extends ConsumerState<_ProfilePage> {
                 Icons.card_membership_rounded,
                 LocaleKeys.skillBadges.tr(),
                 () => context.push('/worker/skill-badges')),
-            _menuTile(context, Icons.card_giftcard_rounded,
-                LocaleKeys.referrals.tr(), () => context.push('/referral')),
+            _menuTile(context, Icons.account_balance_wallet_rounded,
+                'Wallet (Refer & Earn)', () => context.push('/referral')),
             _menuTile(
                 context,
                 Icons.translate_rounded,

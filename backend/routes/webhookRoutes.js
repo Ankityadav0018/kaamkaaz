@@ -3,8 +3,8 @@ const router = express.Router();
 const crypto = require('crypto');
 const Job = require('../models/Job');
 const User = require('../models/User');
-const Wallet = require('../models/Wallet');
-const WalletTransaction = require('../models/WalletTransaction');
+const UserCredits = require('../models/UserCredits'); // UserCredits model (stored in 'wallets' collection)
+const CreditTransaction = require('../models/CreditTransaction'); // CreditTransaction model
 const RazorpayTopupOrder = require('../models/RazorpayTopupOrder');
 const { createNotification, createUrgentNotification } = require('../utils/notification');
 
@@ -22,95 +22,95 @@ router.post('/razorpay', express.raw({ type: 'application/json' }), async (req, 
 
   if (signature === expectedSignature) {
     console.log('Razorpay request is legit');
-    
+
     let event;
     try {
       event = JSON.parse(req.body.toString());
     } catch (e) {
       return res.status(400).send('Invalid JSON payload');
     }
-    
+
     if (event.event === 'payment.captured') {
       const payment = event.payload.payment.entity;
       const razorpay_order_id = payment.order_id;
       const razorpay_payment_id = payment.id;
-      
+
       try {
-        // 1. Check if it's a Wallet Top-up
-        const topupOrder = await RazorpayTopupOrder.findOne({ razorpayOrderId: razorpay_order_id });
-        
-        if (topupOrder) {
-          // Idempotency check: if a transaction with this payment ID exists, we already processed it
-          const existingTx = await WalletTransaction.findOne({ idempotencyKey: razorpay_payment_id });
+        // 1. Check if it's a Credit Pack Purchase
+        const packOrder = await RazorpayTopupOrder.findOne({ razorpayOrderId: razorpay_order_id });
+
+        if (packOrder) {
+          // Idempotency check: if a transaction with this payment ID exists, already processed
+          const existingTx = await CreditTransaction.findOne({ idempotencyKey: razorpay_payment_id });
           if (existingTx) {
             console.log('Webhook already processed for payment:', razorpay_payment_id);
             return res.status(200).json({ status: 'ok', message: 'Already processed' });
           }
 
-          // Atomic processing
-          const session = await Wallet.startSession();
+          // Atomic credit granting
+          const session = await UserCredits.startSession();
           session.startTransaction();
           try {
-            // Re-fetch wallet with lock
-            const wallet = await Wallet.findOne({ recruiterId: topupOrder.recruiterId }).session(session);
-            if (!wallet) throw new Error('Wallet not found');
+            const userCredits = await UserCredits.findOne({ recruiterId: packOrder.recruiterId }).session(session);
+            if (!userCredits) throw new Error('Credit account not found');
 
-            const currentBalance = wallet.balance;
-            const amountPaise = topupOrder.amount;
-            const newBalance = currentBalance + amountPaise;
+            const currentCredits = userCredits.credits;
+            const creditsToAdd = packOrder.creditsToGrant;
+            const newCredits = currentCredits + creditsToAdd;
 
-            // Update Wallet
-            wallet.balance = newBalance;
-            await wallet.save({ session });
+            // Update credit balance
+            userCredits.credits = newCredits;
+            await userCredits.save({ session });
 
-            // Create Wallet Transaction
-            await WalletTransaction.create([{
-              walletId: wallet._id,
-              recruiterId: wallet.recruiterId,
+            // Create credit transaction record
+            await CreditTransaction.create([{
+              creditsId: userCredits._id,
+              recruiterId: userCredits.recruiterId,
               type: 'CREDIT',
-              amount: amountPaise,
-              balanceBefore: currentBalance,
-              balanceAfter: newBalance,
-              source: 'RAZORPAY_TOPUP',
+              credits: creditsToAdd,
+              creditsBefore: currentCredits,
+              creditsAfter: newCredits,
+              source: 'CREDIT_PACK_PURCHASE',
+              packId: packOrder.packId,
               referenceId: razorpay_payment_id,
               idempotencyKey: razorpay_payment_id,
               status: 'SUCCESS',
-              description: 'Wallet Top-up'
+              description: `Credit Pack Purchase: ${packOrder.packId} (+${creditsToAdd} credits)`
             }], { session });
 
             // Update Order Status
-            topupOrder.status = 'PAID';
-            topupOrder.razorpayPaymentId = razorpay_payment_id;
-            topupOrder.webhookReceivedAt = new Date();
-            await topupOrder.save({ session });
+            packOrder.status = 'PAID';
+            packOrder.razorpayPaymentId = razorpay_payment_id;
+            packOrder.webhookReceivedAt = new Date();
+            await packOrder.save({ session });
 
             await session.commitTransaction();
             session.endSession();
 
-            // Notifications
+            // Send notification
             const io = req.app.get('io');
             await createNotification({
-              userId: wallet.recruiterId,
-              title: 'Wallet Top-up Successful',
-              message: `₹${(amountPaise / 100).toFixed(2)} has been added to your wallet.`,
-              type: 'wallet_topup',
+              userId: userCredits.recruiterId,
+              title: 'Job Credits Added!',
+              message: `${creditsToAdd} job posting credits have been added to your account.`,
+              type: 'credit_pack_purchase',
               io
             });
-            console.log(`Wallet top-up successful for recruiter ${wallet.recruiterId}`);
+            console.log(`Credit pack purchase successful for recruiter ${userCredits.recruiterId}: +${creditsToAdd} credits`);
             return res.status(200).json({ status: 'ok' });
           } catch (txError) {
             await session.abortTransaction();
             session.endSession();
-            console.error('Wallet Top-up Transaction Error:', txError);
+            console.error('Credit Pack Purchase Transaction Error:', txError);
             return res.status(500).send('Internal Server Error');
           }
         }
 
-        // 2. Otherwise check if it's an Urgent Job payment (Direct Razorpay payment)
+        // 2. Check if it's an Urgent Job payment (Direct Razorpay payment)
         const job = await Job.findOne({ urgent_order_id: razorpay_order_id });
         if (job) {
           if (job.urgent_payment_status === 'success') {
-             return res.status(200).json({ status: 'ok', message: 'Already processed' });
+            return res.status(200).json({ status: 'ok', message: 'Already processed' });
           }
 
           job.urgent_payment_id = razorpay_payment_id;
@@ -141,7 +141,7 @@ router.post('/razorpay', express.raw({ type: 'application/json' }), async (req, 
 
           const nearbyWorkers = await User.find(workerQuery).select('_id name');
           const io = req.app.get('io');
-          
+
           for (const worker of nearbyWorkers) {
             const titleMsg = job.title;
             const wageMsg = `Wage: ${job.wage}`;

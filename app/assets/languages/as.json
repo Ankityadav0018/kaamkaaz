@@ -1108,9 +1108,6 @@
   "myWallet": "My Wallet",
   "availableBalance": "Available Balance",
   "addMoney": "Add Money",
-  "customAmountHint": "Custom amount...",
-  "addBtn": "Add",
-  "invalidTopupAmount": "Amount must be between ₹10 and ₹10000",
   "topupSuccessUpdated": "Top-up successful! Balance updated.",
   "topupSuccessProcessing": "Top-up successful! Processing balance update...",
   "topupFailed": "Top-up failed: ",
@@ -1118,5 +1115,16 @@
   "walletTopup": "Wallet Top-up",
   "deduction": "Deduction",
   "bal": "Bal: ",
-  "secureWallet": "Secure & Encrypted Wallet"
+  "secureWallet": "Secure & Encrypted Wallet",
+  "myCredits": "My Credits",
+  "buyCredits": "Buy Credits",
+  "creditPackPurchase": "Credit Pack Purchase",
+  "creditPurchaseSuccess": "Credits added to your account!",
+  "creditPurchaseProcessing": "Credits purchase processing...",
+  "creditPurchaseFailed": "Credit pack purchase failed: ",
+  "failedToLoadCredits": "Failed to load credits",
+  "closedLoopCredits": "Credits valid only for job postings",
+  "creditsAvailable": "Credits Available",
+  "buyNow": "Buy Now",
+  "referralEarnings": "Referral Earnings"
 }

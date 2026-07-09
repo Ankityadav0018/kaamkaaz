@@ -241,7 +241,7 @@ app.use('/api/reports', require('./routes/reportRoutes'));
 app.use('/api/sos', require('./routes/sos'));
 app.use('/api/config', require('./routes/configRoutes'));
 app.use('/api/ai', require('./routes/aiRoutes'));
-app.use('/api/wallet', require('./routes/walletRoutes'));
+app.use('/api/credits', require('./routes/creditsRoutes'));
 // Admin IP confirmation (Layer 3 — no auth required, link from email)
 app.use('/api/admin', require('./routes/adminConfirm'));
 

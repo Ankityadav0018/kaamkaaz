@@ -197,8 +197,8 @@ class _ReferralScreenState extends ConsumerState<ReferralScreen>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('walletBalance'.tr(),
-                      style: const TextStyle(
+                  const Text('Referral Earnings',
+                      style: TextStyle(
                           color: AppColors.textLight,
                           fontSize: 13,
                           fontWeight: FontWeight.w600)),
@@ -210,7 +210,7 @@ class _ReferralScreenState extends ConsumerState<ReferralScreen>
                           color: AppColors.primary)),
                 ],
               ),
-              const Icon(Icons.account_balance_wallet_rounded,
+              const Icon(Icons.savings_rounded,
                   size: 40, color: AppColors.primary),
             ],
           ),

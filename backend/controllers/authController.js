@@ -6,7 +6,7 @@ const { createNotification, notifyAdmins } = require('../utils/notification');
 const { generateReferralCode, applyReferralReward } = require('../utils/referralHelper');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
-const Wallet = require('../models/Wallet');
+const UserCredits = require('../models/UserCredits'); // UserCredits model
 
 
 
@@ -65,7 +65,7 @@ exports.register = async (req, res) => {
       user = usersCreated[0];
 
       if (user.role === 'recruiter') {
-        await Wallet.create([{ recruiterId: user._id, balance: 0 }], { session });
+        await UserCredits.create([{ recruiterId: user._id, credits: 0 }], { session });
       }
 
       await session.commitTransaction();
@@ -276,7 +276,7 @@ exports.supabaseVerify = async (req, res) => {
         user = usersCreated[0];
 
         if (user.role === 'recruiter') {
-          await Wallet.create([{ recruiterId: user._id, balance: 0 }], { session });
+          await UserCredits.create([{ recruiterId: user._id, balance: 0 }], { session });
         }
         await session.commitTransaction();
         session.endSession();

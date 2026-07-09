@@ -16,7 +16,7 @@ import '../../providers/stats_provider.dart';
 import '../search_profiles_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'recruiter_applications_screen.dart';
-import '../../services/wallet_service.dart';
+import '../../services/credits_service.dart';
 class RecruiterHomeScreen extends ConsumerStatefulWidget {
   const RecruiterHomeScreen({super.key});
 
@@ -28,7 +28,7 @@ class RecruiterHomeScreen extends ConsumerStatefulWidget {
 class _RecruiterHomeScreenState extends ConsumerState<RecruiterHomeScreen> {
   int _currentIndex = 0;
   String _statusFilter = 'open';
-  int _walletBalance = 0;
+  int _creditsBalance = 0;
 
   @override
   void initState() {
@@ -43,9 +43,9 @@ class _RecruiterHomeScreenState extends ConsumerState<RecruiterHomeScreen> {
   Future<void> _loadData() async {
     ref.read(jobProvider.notifier).fetchMyJobs(status: _statusFilter);
     try {
-      final res = await WalletService.getWallet();
+      final res = await CreditsService.getCredits();
       if (mounted) {
-        setState(() => _walletBalance = (res['data']?['balance_paise'] as num?)?.toInt() ?? 0);
+        setState(() => _creditsBalance = (res['data']?['credits_balance'] as num?)?.toInt() ?? 0);
       }
     } catch (_) {}
   }
@@ -274,10 +274,10 @@ class _RecruiterHomeScreenState extends ConsumerState<RecruiterHomeScreen> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // Wallet Chip
+                     // Credits Chip
                     GestureDetector(
                       onTap: () {
-                        context.push('/recruiter/wallet').then((_) => _loadData());
+                        context.push('/recruiter/credits').then((_) => _loadData());
                       },
                       child: Container(
                         height: 42,
@@ -289,9 +289,9 @@ class _RecruiterHomeScreenState extends ConsumerState<RecruiterHomeScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 18),
+                            const Icon(Icons.confirmation_number_rounded, color: Colors.white, size: 18),
                             const SizedBox(width: 6),
-                            Text('₹${(_walletBalance / 100).toStringAsFixed(0)}', 
+                            Text('$_creditsBalance credits', 
                               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           ],
                         ),
@@ -338,12 +338,12 @@ class _RecruiterHomeScreenState extends ConsumerState<RecruiterHomeScreen> {
 
           // Removed Overlapping Stats Cards to save space
 
-          // Low Wallet Balance Nudge
-          if (_walletBalance < 5000)
+          // Low Credits Nudge
+          if (_creditsBalance < 3)
             Transform.translate(
               offset: const Offset(0, -18),
               child: GestureDetector(
-                onTap: () => context.push('/recruiter/wallet').then((_) => _loadData()),
+                onTap: () => context.push('/recruiter/credits').then((_) => _loadData()),
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -358,7 +358,7 @@ class _RecruiterHomeScreenState extends ConsumerState<RecruiterHomeScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Your wallet balance is low (₹${(_walletBalance / 100).toStringAsFixed(0)}). Top up to keep posting urgent jobs.',
+                          'Credits low ($_creditsBalance remaining). Buy more to keep posting urgent jobs.',
                           style: TextStyle(color: Colors.red.shade900, fontSize: 13, fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -368,7 +368,7 @@ class _RecruiterHomeScreenState extends ConsumerState<RecruiterHomeScreen> {
                           color: Colors.red.shade600,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Text('Top Up Now', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        child: const Text('Buy Credits', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                       )
                     ],
                   ),
@@ -689,9 +689,9 @@ class _RecruiterHomeScreenState extends ConsumerState<RecruiterHomeScreen> {
                 () => context.push('/recruiter/profile')),
             _menuTile(
                 context,
-                Icons.account_balance_wallet_rounded,
-                'My Wallet',
-                () => context.push('/recruiter/wallet').then((_) => _loadData())),
+                Icons.confirmation_number_rounded,
+                'My Credits',
+                () => context.push('/recruiter/credits').then((_) => _loadData())),
             _menuTile(
                 context,
                 Icons.notifications_rounded,
@@ -709,8 +709,8 @@ class _RecruiterHomeScreenState extends ConsumerState<RecruiterHomeScreen> {
                 () => context.push('/recruiter/past-workers')),
             
 
-            _menuTile(context, Icons.card_giftcard_rounded,
-                LocaleKeys.referrals.tr(), () => context.push('/referral')),
+            _menuTile(context, Icons.account_balance_wallet_rounded,
+                'Wallet (Refer & Earn)', () => context.push('/referral')),
             _menuTile(
                 context,
                 Icons.translate_rounded,

@@ -1108,9 +1108,6 @@
   "myWallet": "میرا پرس",
   "availableBalance": "دستیاب بیلنس",
   "addMoney": "رقم شامل کریں۔",
-  "customAmountHint": "حسب ضرورت رقم...",
-  "addBtn": "شامل کریں۔",
-  "invalidTopupAmount": "رقم ₹10 اور ₹10000 کے درمیان ہونی چاہیے۔",
   "topupSuccessUpdated": "ٹاپ اپ کامیاب! بیلنس اپ ڈیٹ ہو گیا۔",
   "topupSuccessProcessing": "ٹاپ اپ کامیاب! بیلنس اپ ڈیٹ پر کارروائی ہو رہی ہے...",
   "topupFailed": "ٹاپ اپ ناکام:",
@@ -1118,5 +1115,16 @@
   "walletTopup": "والیٹ ٹاپ اپ",
   "deduction": "کٹوتی",
   "bal": "بال:",
-  "secureWallet": "محفوظ اور خفیہ کردہ والیٹ"
+  "secureWallet": "محفوظ اور خفیہ کردہ والیٹ",
+  "myCredits": "My Credits",
+  "buyCredits": "Buy Credits",
+  "creditPackPurchase": "Credit Pack Purchase",
+  "creditPurchaseSuccess": "Credits added to your account!",
+  "creditPurchaseProcessing": "Credits purchase processing...",
+  "creditPurchaseFailed": "Credit pack purchase failed: ",
+  "failedToLoadCredits": "Failed to load credits",
+  "closedLoopCredits": "Credits valid only for job postings",
+  "creditsAvailable": "Credits Available",
+  "buyNow": "Buy Now",
+  "referralEarnings": "Referral Earnings"
 }
