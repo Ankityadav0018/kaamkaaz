@@ -43,15 +43,15 @@ const applyReferralReward = async (referrerId, newUserId) => {
     }
 
     // Process Referrer Reward (Cash for everyone)
-    referrer.referralEarnings = (referrer.referralEarnings || 0) + 10;
+    referrer.referralEarnings = (referrer.referralEarnings || 0) + 5;
     referrer.referralCount = (referrer.referralCount || 0) + 1;
-    referrer.referralBalance = (referrer.referralBalance || 0) + 10;
+    referrer.referralBalance = (referrer.referralBalance || 0) + 5;
     await referrer.save({ session });
 
     await Transaction.create([{
       userId: referrer._id,
       type: 'referral_reward',
-      amount: 10,
+      amount: 5,
       description: `Referral earnings for referring ${newUser.name || 'a new user'}`,
       status: 'completed'
     }], { session });
@@ -85,13 +85,13 @@ const applyReferralReward = async (referrerId, newUserId) => {
 
     // Process New User Reward (Cash for everyone)
     newUser.referredBy = referrer._id;
-    newUser.referralBalance = (newUser.referralBalance || 0) + 10;
+    newUser.referralBalance = (newUser.referralBalance || 0) + 5;
     await newUser.save({ session });
 
     await Transaction.create([{
       userId: newUser._id,
       type: 'referral_bonus',
-      amount: 10,
+      amount: 5,
       description: `Welcome bonus from referral code`,
       status: 'completed'
     }], { session });

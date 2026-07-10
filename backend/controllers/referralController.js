@@ -4,7 +4,7 @@ const { generateReferralCode, applyReferralReward } = require('../utils/referral
 const { createNotification } = require('../utils/notification');
 
 const MIN_WITHDRAWAL_AMOUNT = 150;
-const REFERRAL_BONUS_AMOUNT = 10;
+const REFERRAL_BONUS_AMOUNT = 5;
 
 exports.getMyCode = async (req, res) => {
 
