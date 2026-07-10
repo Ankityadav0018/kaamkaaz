@@ -20,6 +20,11 @@ Unlike dispatch platforms, Kaamkaaz is an intermediary **job board + matchmaking
 - **Dynamic Localization (13 Languages)**: Full I18n support across the entire app for 13 Indian languages (English, Hindi, Punjabi, Bengali, Telugu, Marathi, Tamil, Gujarati, Kannada, Malayalam, Odia, Urdu, Rajasthani/Bhojpuri).
 - **Smart Auth & Biometrics**: Firebase-powered authentication with a "Remember Me" feature, OTP verification, and Deep Linking for secure, seamless access.
 - **Zero-Overflow Design**: Carefully calibrated UI layouts that ensure a perfect look on all device sizes without rendering exceptions.
+- **Strict Error Handling**: Production-grade boundaries that gracefully manage loading states, network timeouts, and unexpected crashes with user-friendly "Try Again" screens, ensuring technical jargon or raw errors are never exposed.
+
+### 🤖 AI-Powered Capabilities
+- **Authentic Dialect Translations**: Custom Python scripts using Gemini AI to accurately map hyper-local dialects (like authentic Haryanvi and Rajasthani), surpassing standard translation APIs.
+- **AI Voice Assistant (Beta)**: Built-in voice capabilities with dynamically configured Text-to-Speech (TTS) engine targeting regional male/female voice profiles for a natural conversational experience.
 
 ### 👥 Comprehensive Role-Based Ecosystem
 #### 1. For Workers (Kaamgars)
@@ -35,6 +40,7 @@ Unlike dispatch platforms, Kaamkaaz is an intermediary **job board + matchmaking
 - **Manage Applicants**: Review worker profiles including their **Verified Skill Badges**, past ratings, portfolios, and distance.
 - **Hiring & Connection**: Accept applicants to reveal contact details. Connect via **Direct Call**, **WhatsApp**, or **In-App Chat**.
 - **Past Workers & Network**: Access a history of previously hired workers to quickly re-invite trusted talent for new jobs.
+- **Unified Refer & Earn Wallet**: Live, real-time referral tracking powered by Socket.io. Both recruiters and workers earn universal cash rewards instantly withdrawable via UPI.
 
 #### 3. For Admins
 - **Analytics Dashboard**: Real-time visualization of platform health, registration trends, and job distribution.
