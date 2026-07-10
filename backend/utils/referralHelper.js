@@ -42,13 +42,22 @@ const applyReferralReward = async (referrerId, newUserId) => {
       return false;
     }
 
-    // Process Referrer Reward
+    // Process Referrer Reward (Cash for everyone)
     referrer.referralEarnings = (referrer.referralEarnings || 0) + 10;
     referrer.referralCount = (referrer.referralCount || 0) + 1;
+    referrer.referralBalance = (referrer.referralBalance || 0) + 10;
     await referrer.save({ session });
 
+    await Transaction.create([{
+      userId: referrer._id,
+      type: 'referral_reward',
+      amount: 10,
+      description: `Referral earnings for referring ${newUser.name || 'a new user'}`,
+      status: 'completed'
+    }], { session });
+
     if (referrer.role === 'recruiter') {
-      // For recruiters: add bonus credits to their job posting credits account
+      // For recruiters: ALSO add bonus credits to their job posting credits account
       const rCredits = await UserCredits.findOne({ recruiterId: referrer._id }).session(session);
       if (rCredits) {
         const bonusCredits = 1; // 1 bonus credit for referring a new user
@@ -72,25 +81,23 @@ const applyReferralReward = async (referrerId, newUserId) => {
           description: `Referral bonus: 1 credit for referring ${newUser.name || 'a new user'}`
         }], { session });
       }
-    } else {
-      // For workers: add referral earnings (cash balance, not job credits)
-      referrer.referralBalance = (referrer.referralBalance || 0) + 10;
-      await referrer.save({ session });
-      await Transaction.create([{
-        userId: referrer._id,
-        type: 'referral_reward',
-        amount: 10,
-        description: `Referral earnings for referring ${newUser.name || 'a new user'}`,
-        status: 'completed'
-      }], { session });
     }
 
-    // Process New User Reward
+    // Process New User Reward (Cash for everyone)
     newUser.referredBy = referrer._id;
+    newUser.referralBalance = (newUser.referralBalance || 0) + 10;
     await newUser.save({ session });
 
+    await Transaction.create([{
+      userId: newUser._id,
+      type: 'referral_bonus',
+      amount: 10,
+      description: `Welcome bonus from referral code`,
+      status: 'completed'
+    }], { session });
+
     if (newUser.role === 'recruiter') {
-      // For new recruiter: add bonus credits to their job posting credits account
+      // For new recruiter: ALSO add bonus credits to their job posting credits account
       const nCredits = await UserCredits.findOne({ recruiterId: newUser._id }).session(session);
       if (nCredits) {
         const bonusCredits = 1; // 1 welcome credit
@@ -114,17 +121,6 @@ const applyReferralReward = async (referrerId, newUserId) => {
           description: `Welcome bonus: 1 credit from referral code`
         }], { session });
       }
-    } else {
-      // For new worker: add referral earnings
-      newUser.referralBalance = (newUser.referralBalance || 0) + 10;
-      await newUser.save({ session });
-      await Transaction.create([{
-        userId: newUser._id,
-        type: 'referral_bonus',
-        amount: 10,
-        description: `Welcome bonus from referral code`,
-        status: 'completed'
-      }], { session });
     }
 
     await session.commitTransaction();
