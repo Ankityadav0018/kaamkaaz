@@ -45,8 +45,6 @@ class _ReferralScreenState extends ConsumerState<ReferralScreen>
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(referralProvider);
-    final user = ref.watch(authProvider).user;
-    final isRecruiter = user?.role == 'recruiter';
 
     return Scaffold(
       backgroundColor: AppColors.bgLight,
@@ -71,17 +69,12 @@ class _ReferralScreenState extends ConsumerState<ReferralScreen>
                 child: Column(
                   children: [
                     _buildReferralCard(state),
-                    if (!isRecruiter) ...[
-                      const SizedBox(height: 20),
-                      _buildWalletCard(state),
-                      const SizedBox(height: 20),
-                      _buildStatsRow(state),
-                      const SizedBox(height: 20),
-                      _buildHistoryTabs(state),
-                    ] else ...[
-                      const SizedBox(height: 20),
-                      _buildRecruiterEarningsCard(state),
-                    ],
+                    const SizedBox(height: 20),
+                    _buildWalletCard(state),
+                    const SizedBox(height: 20),
+                    _buildStatsRow(state),
+                    const SizedBox(height: 20),
+                    _buildHistoryTabs(state),
                   ],
                 ),
               ),
@@ -508,53 +501,6 @@ class _ReferralScreenState extends ConsumerState<ReferralScreen>
           ),
         );
       },
-    );
-  }
-
-  Widget _buildRecruiterEarningsCard(ReferralState state) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppColors.cardShadow,
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Total Earned',
-                      style: TextStyle(
-                          color: AppColors.textLight,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 4),
-                  Text('₹${state.referralEarnings.toStringAsFixed(0)}',
-                      style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.primary)),
-                ],
-              ),
-              const Icon(Icons.stars_rounded,
-                  size: 40, color: AppColors.primary),
-            ],
-          ),
-          const Divider(height: 32),
-          const Text(
-            'Your referral earnings are automatically added to your Main Wallet!',
-            style: TextStyle(
-                color: AppColors.success,
-                fontWeight: FontWeight.w600,
-                fontSize: 13),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
     );
   }
 

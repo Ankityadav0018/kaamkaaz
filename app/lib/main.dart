@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'services/router_service.dart';
+import 'services/logger_service.dart';
 import 'services/notification_service.dart';
 import 'utils/app_theme.dart';
 import 'utils/app_colors.dart';
@@ -59,11 +60,50 @@ Future<void> main() async {
     // Initialize notifications without blocking the UI thread
     unawaited(NotificationService.initialize());
 
+    ErrorWidget.builder = (FlutterErrorDetails details) {
+      LoggerService.e('Global UI Crash: ${details.exceptionAsString()}\\n${details.stack}');
+      return Material(
+        color: AppColors.bgLight,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: AppColors.textLight),
+                const SizedBox(height: 16),
+                const Text(
+                  "Couldn't load this right now. Try again.",
+                  style: TextStyle(color: AppColors.textMedium, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.safetyOrange,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                  ),
+                  onPressed: () {
+                    // Force a rebuild / routing reset if possible
+                    AppKeys.rootNavigatorKey.currentContext?.go('/');
+                  },
+                  child: const Text('Try Again'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    };
+
     FlutterError.onError = (details) {
-      FlutterError.presentError(details);
+      LoggerService.e('FlutterError caught: ${details.exceptionAsString()}\\n${details.stack}');
     };
 
     PlatformDispatcher.instance.onError = (error, stack) {
+      LoggerService.e('PlatformDispatcher caught: $error\\n$stack');
       return true;
     };
 

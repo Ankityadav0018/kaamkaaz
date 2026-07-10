@@ -15,6 +15,7 @@ class AppColors {
   static const Color danger = Color(0xFFD32F2F); // Red
   static const Color warning = Color(0xFFF59E0B); // Amber
   static const Color info = Color(0xFF1565C0); // Blue
+  static const Color safetyOrange = Color(0xFFFF5F15); // Vibrant non-alarming action color
 
   // Backgrounds
   static const Color bgLight = Color(0xFFF8FAFC); // Very light blue-gray

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../exceptions/api_exception.dart';
 import '../providers/auth_provider.dart';
+import '../utils/app_colors.dart';
 
 class ErrorHandler {
   static void showSnackbar(BuildContext context, String message) {
@@ -11,8 +12,8 @@ class ErrorHandler {
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(message, style: const TextStyle(color: Colors.white)),
-          backgroundColor: Colors.redAccent,
+          content: Text(message, style: const TextStyle(color: Colors.white, fontSize: 14)),
+          backgroundColor: AppColors.textDark, // Utilitarian dark flat style
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 3),
         ),
@@ -26,7 +27,7 @@ class ErrorHandler {
       ..showSnackBar(
         SnackBar(
           content: Text(message, style: const TextStyle(color: Colors.white)),
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 3),
         ),
@@ -38,15 +39,22 @@ class ErrorHandler {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(title),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: TextStyle(color: AppColors.textLight)),
           ),
           if (onRetry != null)
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.safetyOrange,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              ),
               onPressed: () {
                 Navigator.pop(ctx);
                 onRetry();
@@ -60,10 +68,13 @@ class ErrorHandler {
 
   static Widget showInlineError(String message) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Text(
-        message,
-        style: const TextStyle(color: Colors.red, fontSize: 12),
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Center(
+        child: Text(
+          message,
+          style: const TextStyle(color: AppColors.textMedium, fontSize: 14),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
@@ -83,7 +94,7 @@ class ErrorHandler {
   }
 
   static String getMessage(dynamic error) {
-    if (error == null) return 'An unexpected error occurred. Please try again.';
+    if (error == null) return "Couldn't load this right now. Try again.";
     
     String msg = '';
     if (error is ApiException) {
@@ -92,49 +103,25 @@ class ErrorHandler {
       msg = error.toString();
     }
 
-    msg = msg.replaceFirst('Exception:', '').trim();
-
     final lowerMsg = msg.toLowerCase();
 
-    // Network & Timeout
-    if (lowerMsg.contains('socketexception') || lowerMsg.contains('connection refused') || lowerMsg.contains('network is unreachable')) {
-      return 'Unable to connect to the server. Please check your internet connection.';
-    }
-    if (lowerMsg.contains('timeout')) {
-      return 'The request timed out. Please try again later.';
-    }
-
-    // Firebase & Auth
+    // Specific user-facing validation/auth messages (non-technical)
     if (lowerMsg.contains('firebase_auth')) {
       if (lowerMsg.contains('invalid-credential') || lowerMsg.contains('wrong-password') || lowerMsg.contains('user-not-found')) {
         return 'Invalid phone number or password.';
       }
       if (lowerMsg.contains('too-many-requests')) {
-        return 'Too many attempts. Please try again later.';
+        return "Couldn't load this right now. Try again.";
       }
-      return 'Authentication failed. Please try again.';
     }
 
-    // Generic technical terms
-    if (lowerMsg.contains('typeerror') || 
-        lowerMsg.contains('nosuchmethoderror') || 
-        lowerMsg.contains('rangeerror') || 
-        lowerMsg.contains('format_exception') || 
-        lowerMsg.contains('unhandled') ||
-        lowerMsg.contains('internal server error') ||
-        lowerMsg.contains('<html>') ||
-        lowerMsg.contains('doctype') ||
-        lowerMsg.contains('mongoerror') ||
-        lowerMsg.contains('cast to objectid failed') ||
-        lowerMsg.contains('null check operator')) {
-      return 'We are experiencing a temporary issue. Please try again later.';
+    // Payment-specific failure message (from Section 6 rule)
+    if (lowerMsg.contains('razorpay') || lowerMsg.contains('payment failed') || lowerMsg.contains('gateway')) {
+      return "Payment didn't go through. Try again or use a different method.";
     }
 
-    // If it's a completely unreadable raw exception
-    if (msg.length > 100 && !msg.contains(' ')) {
-      return 'Something went wrong. Please try again.';
-    }
-
-    return msg.isEmpty ? 'An error occurred. Please try again.' : msg;
+    // Never return raw tech jargon, network errors, timeouts, or stack traces
+    // Just return the standard fallback state
+    return "Couldn't load this right now. Try again.";
   }
 }

@@ -85,8 +85,8 @@ class AIAssistantNotifier extends StateNotifier<AIAssistantState> {
 
   Future<void> _initTTS() async {
     _tts = FlutterTts();
-    await _tts?.setPitch(1.3); // Higher pitch for a sweeter female voice
-    await _tts?.setSpeechRate(0.45); // Slightly slower, more melodious pacing
+    await _tts?.setPitch(0.7); // Lower pitch for a solid male voice
+    await _tts?.setSpeechRate(0.5); // Robust and steady pacing
     
     _tts?.setCompletionHandler(() {
       state = state.copyWith(isSpeaking: false);
