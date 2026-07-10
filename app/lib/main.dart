@@ -328,8 +328,9 @@ class _KaamkaazAppState extends ConsumerState<KaamkaazApp> with WidgetsBindingOb
               children: [
                 child ?? const SizedBox.shrink(),
                 // Show swipeable AI Assistant handle when logged in and not locked
-                if (!lockState.isLocked && isLoggedIn) 
-                  AIAssistantHandle(router: router),
+                // Temporarily disabled as per request
+                // if (!lockState.isLocked && isLoggedIn) 
+                //   AIAssistantHandle(router: router),
                 // Show lock screen on top of everything when locked AND user is logged in
                 if (lockState.isLocked && isLoggedIn) const Positioned.fill(child: AppLockScreen()),
               ],
