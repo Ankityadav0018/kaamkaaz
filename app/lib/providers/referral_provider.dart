@@ -3,6 +3,7 @@ import '../services/api_service.dart';
 import '../utils/api_config.dart';
 import '../models/transaction_model.dart';
 import '../models/referred_user_model.dart';
+import '../services/socket_service.dart';
 
 class ReferralState {
   final String? referralCode;
@@ -51,9 +52,14 @@ class ReferralState {
     );
   }
 }
-
 class ReferralNotifier extends StateNotifier<ReferralState> {
-  ReferralNotifier() : super(ReferralState());
+  ReferralNotifier() : super(ReferralState()) {
+    SocketService().socket?.on('referral_update', (_) {
+      fetchMyCode();
+      fetchReferralStats();
+      fetchTransactions();
+    });
+  }
 
   Future<void> fetchMyCode() async {
     state = state.copyWith(isLoading: true, error: null);

@@ -92,7 +92,7 @@ exports.applyReferral = async (req, res) => {
       return res.status(400).json({ success: false, message: req.t('referral.own_code') });
     }
 
-    const applied = await applyReferralReward(referrer._id, user._id);
+    const applied = await applyReferralReward(referrer._id, user._id, req.app.get('io'));
     if (applied) {
       res.status(200).json({ success: true, bonusEarned: REFERRAL_BONUS_AMOUNT });
     } else {

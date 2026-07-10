@@ -101,7 +101,7 @@ exports.register = async (req, res) => {
       if (incomingReferralCode) {
         const referrer = await User.findOne({ referralCode: new RegExp(`^${incomingReferralCode.trim()}$`, 'i') });
         if (referrer && referrer._id.toString() !== user._id.toString()) {
-          const applied = await applyReferralReward(referrer._id, user._id);
+          const applied = await applyReferralReward(referrer._id, user._id, req.app.get('io'));
           if (applied) {
             await createNotification({
               userId: referrer._id,
@@ -291,7 +291,7 @@ exports.supabaseVerify = async (req, res) => {
         if (referrer) {
           user.referredBy = referrer._id;
           await user.save();
-          await applyReferralReward(referrer._id, user._id);
+          await applyReferralReward(referrer._id, user._id, req.app.get('io'));
           await createNotification({
             userId: referrer._id,
             title: '🎉 Referral Reward!',

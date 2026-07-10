@@ -28,7 +28,7 @@ const generateReferralCode = async (name, phone) => {
   return code;
 };
 
-const applyReferralReward = async (referrerId, newUserId) => {
+const applyReferralReward = async (referrerId, newUserId, io = null) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
@@ -125,6 +125,20 @@ const applyReferralReward = async (referrerId, newUserId) => {
 
     await session.commitTransaction();
     session.endSession();
+
+    if (io) {
+      // Emit real-time wallet update to the referrer
+      io.to(referrerId.toString()).emit('referral_update', { 
+        message: 'You earned a referral bonus!',
+        amount: 5
+      });
+      // Optionally notify the new user as well
+      io.to(newUserId.toString()).emit('referral_update', {
+        message: 'Welcome bonus credited!',
+        amount: 5
+      });
+    }
+
     return true;
   } catch (error) {
     await session.abortTransaction();
