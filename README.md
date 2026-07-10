@@ -40,7 +40,6 @@ Unlike dispatch platforms, Kaamkaaz is an intermediary **job board + matchmaking
 - **Manage Applicants**: Review worker profiles including their **Verified Skill Badges**, past ratings, portfolios, and distance.
 - **Hiring & Connection**: Accept applicants to reveal contact details. Connect via **Direct Call**, **WhatsApp**, or **In-App Chat**.
 - **Past Workers & Network**: Access a history of previously hired workers to quickly re-invite trusted talent for new jobs.
-- **Unified Refer & Earn Wallet**: Live, real-time referral tracking powered by Socket.io. Both recruiters and workers earn universal cash rewards instantly withdrawable via UPI.
 
 #### 3. For Admins
 - **Analytics Dashboard**: Real-time visualization of platform health, registration trends, and job distribution.
