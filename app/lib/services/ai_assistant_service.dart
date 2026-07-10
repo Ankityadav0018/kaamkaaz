@@ -85,7 +85,33 @@ class AIAssistantNotifier extends StateNotifier<AIAssistantState> {
 
   Future<void> _initTTS() async {
     _tts = FlutterTts();
-    await _tts?.setPitch(0.7); // Lower pitch for a solid male voice
+    await _tts?.setLanguage("hi-IN"); // Set default language to Hindi to start
+
+    try {
+      List<dynamic> voices = await _tts!.getVoices;
+      for (var v in voices) {
+        if (v is Map) {
+          String name = v['name']?.toString().toLowerCase() ?? '';
+          String locale = v['locale']?.toString().toLowerCase() ?? '';
+          
+          // Look for male Hindi or Indian English voices
+          if (locale.contains('hi') || locale.contains('in')) {
+            // Google TTS Male identifiers: -x-hid, -x-hic. iOS: rishi. Or explicit 'male'
+            if (name.contains('male') || 
+                name.contains('-x-hid') || 
+                name.contains('-x-hic') || 
+                name.contains('rishi')) {
+              await _tts!.setVoice({"name": v["name"], "locale": v["locale"]});
+              break;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print("Voice selection error: $e");
+    }
+
+    await _tts?.setPitch(0.8); // Slightly lower pitch to enhance masculinity
     await _tts?.setSpeechRate(0.5); // Robust and steady pacing
     
     _tts?.setCompletionHandler(() {
