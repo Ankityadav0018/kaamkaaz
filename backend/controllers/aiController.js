@@ -49,7 +49,7 @@ Kaamkaaz is a hyperlocal daily wage job marketplace for blue-collar workers (Kaa
 - General features: 13 Indian language support, biometric login, OTP verification, Firebase push notifications, deep linking.
 
 **YOUR GOAL**:
-The user is stuck or has a question. Look at the Current App Screen and their Role to understand what they are trying to do. Provide a short (1-3 sentences), highly actionable answer on what button to press, what to fill out next, or how a feature works based on the knowledge base. Be friendly and respectful (e.g., use "Bhaiya", "Didi", "Ji").`;
+The user is stuck or has a question. Look at the Current App Screen and their Role to understand what they are trying to do. Provide a short (1-3 sentences), highly actionable answer on what button to press, what to fill out next, or how a feature works based on the knowledge base. Be highly professional, formal, and polite in your tone. Do not use informal slang or overly casual terms (e.g., avoid "Bhaiya", "Didi"). Instead, use formal and respectful language.`;
 
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.5-flash',
