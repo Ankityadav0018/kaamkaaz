@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import '../providers/auth_provider.dart';
 import '../screens/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
@@ -113,6 +114,9 @@ final routerProvider = Provider<GoRouter>((ref) {
     navigatorKey: AppKeys.rootNavigatorKey,
     initialLocation: '/splash',
     refreshListenable: routerNotifier,
+    observers: [
+      FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+    ],
     redirect: (context, state) {
       final authState = ref.read(authProvider);
 

@@ -22,7 +22,7 @@ import 'services/widget_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'widgets/ai_assistant_overlay.dart';
 import 'widgets/ai_assistant_handle.dart';
-
+import 'package:firebase_analytics/firebase_analytics.dart';
 class AppInit {
   static late final Future<void> firebaseFuture;
   static late final Future<void> supabaseFuture;
@@ -31,10 +31,14 @@ class AppInit {
 Future<void> main() async {
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     // Start heavy initializations concurrently to minimize splash screen time
     final prefsFuture = SharedPreferences.getInstance();
     
-    AppInit.firebaseFuture = Firebase.initializeApp().catchError((e) {
+    AppInit.firebaseFuture = Firebase.initializeApp().then((_) {
+      debugPrint('Firebase initialized successfully.');
+      FirebaseAnalytics.instance.logAppOpen();
+    }).catchError((e) {
       debugPrint('Firebase init failed: $e');
     }).catchError((_) => null); // Return null instead of throwing further
     
