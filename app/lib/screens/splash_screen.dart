@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -101,7 +101,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     await Future.wait([
       AppInit.supabaseFuture,
       AppInit.firebaseFuture,
-    ]);
+    ]).timeout(const Duration(seconds: 5), onTimeout: () => []);
 
     // Fire auth init + animation in parallel
     final authFuture = ref.read(authProvider.notifier).init();
