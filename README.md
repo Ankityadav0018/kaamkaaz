@@ -17,7 +17,7 @@ Unlike dispatch platforms, Kaamkaaz is an intermediary **job board + matchmaking
 
 ### 💎 Premium User Experience
 - **Animated Splash Screen & Onboarding**: A high-fidelity introduction with bouncing logo animations and interactive tours for both workers and recruiters.
-- **Dynamic Localization (13 Languages)**: Full I18n support across the entire app for 13 Indian languages (English, Hindi, Punjabi, Bengali, Telugu, Marathi, Tamil, Gujarati, Kannada, Malayalam, Odia, Urdu, Rajasthani/Bhojpuri).
+- **Dynamic Localization (12 Languages)**: Full I18n support across the entire app for 12 Indian languages (English, Hindi, Punjabi, Bengali, Telugu, Marathi, Tamil, Gujarati, Kannada, Malayalam, Odia, Rajasthani/Bhojpuri).
 - **Smart Auth & Biometrics**: Firebase-powered authentication with a "Remember Me" feature, OTP verification, and Deep Linking for secure, seamless access.
 - **Zero-Overflow Design**: Carefully calibrated UI layouts that ensure a perfect look on all device sizes without rendering exceptions.
 - **Strict Error Handling**: Production-grade boundaries that gracefully manage loading states, network timeouts, and unexpected crashes with user-friendly "Try Again" screens, ensuring technical jargon or raw errors are never exposed.
@@ -60,7 +60,7 @@ Unlike dispatch platforms, Kaamkaaz is an intermediary **job board + matchmaking
 - **Framework**: Flutter (Dart) — Updated for **Android SDK 36** compatibility.
 - **State Management**: Riverpod (`flutter_riverpod`) — Reactive and predictable state.
 - **Navigation**: GoRouter (`go_router`) — Declarative, type-safe routing.
-- **Localization**: Easy Localization (`easy_localization`) driving 13 dynamic translations.
+- **Localization**: Easy Localization (`easy_localization`) driving 12 dynamic translations.
 - **Build Tools**: Optimized with R8/ProGuard, resource shrinking, and native ABI stripping.
 
 ### Backend (API / Server)
@@ -78,7 +78,7 @@ Unlike dispatch platforms, Kaamkaaz is an intermediary **job board + matchmaking
 kaamkaaz/
 ├── app/                        # Flutter Mobile Application
 │   ├── lib/
-│   │   ├── l10n/               # Localization (13 Indian languages)
+│   │   ├── l10n/               # Localization (12 Indian languages)
 │   │   ├── models/             # Data Models (JSON mapping)
 │   │   ├── providers/          # Riverpod State Management
 │   │   ├── screens/            # Role-based UI (Worker, Recruiter, Admin)
@@ -132,9 +132,9 @@ Create `backend/.env` with these keys:
 5. `flutter run` (or `flutter build appbundle --release`)
 
 ### 3. Managing Translations
-Kaamkaaz supports 13 dynamic Indian regional languages. To add or update translation strings:
+Kaamkaaz supports 12 dynamic Indian regional languages. To add or update translation strings:
 1. Define the new translation keys in the English source file: `app/assets/languages/en.json`.
-2. Open `app/assets/languages/local_translate.py` and map the translations for the new keys in the `TRANSLATIONS` dictionary (supporting Hindi, Haryanvi, Rajasthani, Punjabi, Marathi, Gujarati, Bengali, Tamil, Telugu, Kannada, Malayalam, Odia, Urdu).
+2. Open `app/assets/languages/local_translate.py` and map the translations for the new keys in the `TRANSLATIONS` dictionary (supporting Hindi, Haryanvi, Rajasthani, Punjabi, Marathi, Gujarati, Bengali, Tamil, Telugu, Kannada, Malayalam, Odia).
 3. Run `python3 local_translate.py` inside `app/assets/languages/` to update all translation files.
 4. Regenerate localization helper class: `dart run easy_localization:generate -S assets/languages -f keys -O lib/l10n -o locale_keys.g.dart`.
 

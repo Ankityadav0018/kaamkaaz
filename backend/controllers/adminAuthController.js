@@ -102,31 +102,35 @@ exports.adminLogin = async (req, res) => {
     // ── Reset IP fail counter on successful password ──────────────────────────
     await redis.del(ipFailKey);
 
-    // ── Issue admin_pending JWT (Layer 1 complete) ─────────────────────────────
-    // Note: issuedIp removed — mobile clients change IPs (WiFi ↔ 4G)
-    const pendingToken = signAdminJwt(
+    // ── Issue full admin JWT ─────────────────────────────
+    const sessionId = `${admin._id}-${Date.now()}`;
+    const fullToken = signAdminJwt(
       {
         id: admin._id,
-        role: 'admin_pending'
+        role: 'admin',
+        sessionId
       },
-      PENDING_JWT_EXPIRE
+      FULL_JWT_EXPIRE
     );
 
-    if (!admin.twoFactorEnabled) {
-      return res.status(200).json({
-        success: true,
-        message: 'Password verified. Please set up two-factor authentication.',
-        token: pendingToken,
-        requireSetup: true
-      });
+    // ── Seed inactivity timer ───────────────────────────
+    const lastActiveKey = `admin:session:lastActive:${admin._id}`;
+    try {
+      await safeRedisSetex(lastActiveKey, INACTIVITY_SEC, Date.now().toString());
+    } catch (redisErr) {
+      console.error('[adminLogin] Redis setex failed:', redisErr.message);
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Password verified. Please verify your phone number.',
-      token: pendingToken,
-      requireAdminOtp: true,
-      phone: admin.phone
+      message: `Identity verified. Welcome, ${admin.name}. Your session is active for 8 hours.`,
+      token: fullToken,
+      admin: {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role
+      }
     });
 
   } catch (err) {

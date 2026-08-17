@@ -70,7 +70,11 @@ class AuthService {
               // Try auto-login as admin to get the pending token
               final adminRes = await adminLogin(identifier, password);
               if (adminRes['success'] == true) {
-                return {'success': true, 'requireAdminOtp': true, 'otpMethod': adminRes['otpMethod']};
+                if (adminRes['requireAdminOtp'] == true || adminRes['requireSetup'] == true) {
+                  return {'success': true, 'requireAdminOtp': true, 'requireSetup': adminRes['requireSetup'], 'otpMethod': adminRes['otpMethod']};
+                } else {
+                  return {'success': true, 'user': adminRes['user'] ?? user};
+                }
               }
             }
           }
@@ -81,7 +85,11 @@ class AuthService {
         // Fallback: Try admin login if Supabase auth fails
         final adminRes = await adminLogin(identifier, password);
         if (adminRes['success'] == true) {
-          return {'success': true, 'requireAdminOtp': true, 'otpMethod': adminRes['otpMethod']};
+          if (adminRes['requireAdminOtp'] == true || adminRes['requireSetup'] == true) {
+            return {'success': true, 'requireAdminOtp': true, 'requireSetup': adminRes['requireSetup'], 'otpMethod': adminRes['otpMethod']};
+          } else {
+            return {'success': true, 'user': adminRes['user']};
+          }
         }
 
         String msg = 'Login failed';
@@ -110,13 +118,17 @@ class AuthService {
           // Their email is known from the login response.
           final adminRes = await adminLogin(user.email, password);
           if (adminRes['success'] == true) {
-            return {
-              'success': true,
-              'requireAdminOtp': adminRes['requireAdminOtp'] == true,
-              'requireSetup':    adminRes['requireSetup']    == true,
-              'otpMethod':       adminRes['otpMethod'],
-              'phone':           adminRes['phone'],
-            };
+            if (adminRes['requireAdminOtp'] == true || adminRes['requireSetup'] == true) {
+              return {
+                'success': true,
+                'requireAdminOtp': adminRes['requireAdminOtp'] == true,
+                'requireSetup':    adminRes['requireSetup']    == true,
+                'otpMethod':       adminRes['otpMethod'],
+                'phone':           adminRes['phone'],
+              };
+            } else {
+              return {'success': true, 'user': adminRes['user'] ?? user};
+            }
           }
           // Admin 2FA failed (wrong email/password combo on admin endpoint),
           // but regular token is still valid — adminSession.js accepts it too.
@@ -136,18 +148,30 @@ class AuthService {
     try {
       final res = await ApiService.post(ApiConfig.adminLogin, body, auth: false);
       if (res['success'] == true && res['token'] != null) {
-        // Clear any old full admin token so it doesn't interfere with OTP stage
-        await ApiService.deleteAdminToken();
-        // Temporarily save the pending token so ApiService can use it for verify-otp / setup-phone
-        await ApiService.saveToken(res['token'], persist: false); 
-        
-        return {
-          'success': true, 
-          'message': res['message'], 
-          'requireSetup': res['requireSetup'] == true,
-          'requireAdminOtp': res['requireAdminOtp'] == true,
-          'phone': res['phone']
-        };
+        if (res['requireSetup'] == true || res['requireAdminOtp'] == true) {
+          // Clear any old full admin token so it doesn't interfere with OTP stage
+          await ApiService.deleteAdminToken();
+          // Temporarily save the pending token so ApiService can use it for verify-otp / setup-phone
+          await ApiService.saveToken(res['token'], persist: false); 
+          
+          return {
+            'success': true, 
+            'message': res['message'], 
+            'requireSetup': res['requireSetup'] == true,
+            'requireAdminOtp': res['requireAdminOtp'] == true,
+            'phone': res['phone']
+          };
+        } else {
+          // Full login bypasses 2FA
+          await ApiService.saveAdminToken(res['token']);
+          await ApiService.saveToken(res['token'], persist: true);
+          if (res['admin'] != null) {
+            final userJson = Map<String, dynamic>.from(res['admin']);
+            userJson['role'] = 'admin';
+            return {'success': true, 'user': UserModel.fromJson(userJson)};
+          }
+          return {'success': true, 'message': res['message']};
+        }
       }
       return {'success': false, 'message': res['message'] ?? 'Admin login failed'};
     } catch (e) {

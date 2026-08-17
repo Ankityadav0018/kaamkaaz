@@ -260,6 +260,24 @@ class _KycUploadScreenState extends ConsumerState<KycUploadScreen> {
                     type: StepperType.vertical,
                     currentStep: _currentStep,
                     onStepContinue: () {
+                      if (_currentStep == 0) {
+                        if (_aadhaarFront == null || _aadhaarBack == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(LocaleKeys.uploadAllDocs.tr()),
+                                backgroundColor: AppColors.danger),
+                          );
+                          return;
+                        }
+                      } else if (_currentStep == 1 && _livePhoto == null && isDriver) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(LocaleKeys.uploadAllDocs.tr()),
+                                backgroundColor: AppColors.danger),
+                          );
+                          return;
+                      }
+
                       if (_currentStep < (isDriver ? 2 : 1)) {
                         setState(() => _currentStep++);
                       } else {

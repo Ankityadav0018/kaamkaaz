@@ -1,7 +1,13 @@
 allprojects {
     repositories {
         google()
-        mavenCentral()
+        mavenCentral {
+            content {
+                excludeGroupByRegex("androidx.*")
+                excludeGroupByRegex("com\\.android.*")
+                excludeGroupByRegex("com\\.google.*")
+            }
+        }
     }
 }
 

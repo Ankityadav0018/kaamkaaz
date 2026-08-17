@@ -114,9 +114,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     navigatorKey: AppKeys.rootNavigatorKey,
     initialLocation: '/splash',
     refreshListenable: routerNotifier,
-    observers: [
-      FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
-    ],
+    observers: [],
     redirect: (context, state) {
       final authState = ref.read(authProvider);
 

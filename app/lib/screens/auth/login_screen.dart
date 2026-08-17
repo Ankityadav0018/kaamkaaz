@@ -13,7 +13,7 @@ import '../../l10n/locale_keys.g.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../services/auth_service.dart';
 import 'package:kaamkaaz/widgets/voice_text_field.dart';
-
+import '../../utils/error_handler.dart';
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
   @override
@@ -136,7 +136,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     } on AuthException catch (e) {
       if (mounted) _showSnack(e.message, isError: true);
     } catch (e) {
-      if (mounted) _showSnack(e.toString(), isError: true);
+      if (mounted) _showSnack(ErrorHandler.getMessage(e), isError: true);
     } finally {
       if (mounted) setState(() => _isSendingOtp = false);
     }

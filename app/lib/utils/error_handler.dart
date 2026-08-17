@@ -106,13 +106,25 @@ class ErrorHandler {
     final lowerMsg = msg.toLowerCase();
 
     // Specific user-facing validation/auth messages (non-technical)
-    if (lowerMsg.contains('firebase_auth')) {
-      if (lowerMsg.contains('invalid-credential') || lowerMsg.contains('wrong-password') || lowerMsg.contains('user-not-found')) {
-        return 'Invalid phone number or password.';
+    if (lowerMsg.contains('invalid') || 
+        lowerMsg.contains('wrong') || 
+        lowerMsg.contains('password') || 
+        lowerMsg.contains('credential') || 
+        lowerMsg.contains('not found') ||
+        lowerMsg.contains('incorrect') ||
+        lowerMsg.contains('does not exist') ||
+        lowerMsg.contains('authentication failed')) {
+      
+      if (!lowerMsg.contains('socket') && !lowerMsg.contains('timeout')) {
+        String cleanMsg = msg.replaceFirst('Exception: ', '').trim();
+        // Fallback friendly message if it's too technical
+        if (cleanMsg.toLowerCase().contains('auth')) return 'Invalid phone number or password.';
+        return cleanMsg;
       }
-      if (lowerMsg.contains('too-many-requests')) {
-        return "Couldn't load this right now. Try again.";
-      }
+    }
+
+    if (lowerMsg.contains('too-many-requests')) {
+      return "Too many attempts. Please try again later.";
     }
 
     // Payment-specific failure message (from Section 6 rule)
